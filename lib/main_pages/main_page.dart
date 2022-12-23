@@ -1,111 +1,92 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:chef_yas/model/item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinbox/flutter_spinbox.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  final int last;
+  const MainPage({Key? key, required this.last}) : super(key: key);
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  List<Item> myItems = [];
+  bool activeSubmit = false;
+  List<Item> myItems = [
+    Item(itemID: 0, itemName: 'Shawarma S', itemPrice: 6),
+    Item(itemID: 1, itemName: 'Small cheese', itemPrice: 8),
+    Item(itemID: 2, itemName: 'Shawarma L', itemPrice: 10),
+    Item(itemID: 3, itemName: 'Large cheese', itemPrice: 12),
+    Item(itemID: 4, itemName: 'Chicken rice', itemPrice: 12),
+    Item(itemID: 5, itemName: 'Chicken plate', itemPrice: 10),
+    Item(itemID: 6, itemName: 'Shawarma S', itemPrice: 9),
+    Item(itemID: 7, itemName: 'Small cheese', itemPrice: 11),
+    Item(itemID: 8, itemName: 'Shawarma L', itemPrice: 14),
+    Item(itemID: 9, itemName: 'Large cheese', itemPrice: 16),
+    Item(itemID: 10, itemName: 'Beef rice', itemPrice: 15),
+    Item(itemID: 11, itemName: 'Beef plate', itemPrice: 14),
+  ];
+  List<bool> activeNote = List.generate(12, ((index) => false));
+  List<TextEditingController> noteInput =
+      List.generate(12, ((index) => TextEditingController()));
+  List<double> orderQuantity = List.generate(
+    12,
+    (index) => 0,
+  );
+
+  int lastOrder = 0;
+
+  Future saveOrder() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    lastOrder++;
+    preferences.setInt('lastOrder', lastOrder);
+  }
 
   @override
   void initState() {
     super.initState();
-    initData();
+    lastOrder = widget.last;
+  }
+
+  void setDefault() {
+    for (int i = 0; i < myItems.length; i++) {
+      activeNote[i] = false;
+      noteInput[i].clear();
+      orderQuantity[i] = 0;
+    }
+    activeSubmit = false;
   }
 
   List<Widget> buildChicken() {
     List<Widget> ch = [];
 
+    for (int i = 0; i < 6; i++) {
+      ch.add(menu(
+          index: i, name: myItems[i].itemName, price: myItems[i].itemPrice));
+    }
     return ch;
   }
 
-  initData() {
-    myItems.add(Item(
-        itemID: 0,
-        itemName: 'Shawarma Small',
-        itemDescription: 'fgg',
-        itemPrice: 6.00));
-    myItems.add(Item(
-        itemID: 1,
-        itemName: 'Small with cheese',
-        itemDescription: 'fgg',
-        itemPrice: 8.00));
-    myItems.add(Item(
-        itemID: 2,
-        itemName: 'Shawarma Large',
-        itemDescription: 'fgg',
-        itemPrice: 10.00));
-    myItems.add(Item(
-        itemID: 3,
-        itemName: 'Large with cheese',
-        itemDescription: 'fgg',
-        itemPrice: 12.00));
-    myItems.add(Item(
-        itemID: 4,
-        itemName: 'Chicken with rice',
-        itemDescription: 'fgg',
-        itemPrice: 12.00));
-    myItems.add(Item(
-        itemID: 5,
-        itemName: 'Chicken plate',
-        itemDescription: 'fgg',
-        itemPrice: 10.00));
-    myItems.add(Item(
-        itemID: 6,
-        itemName: 'Shawarma Small',
-        itemDescription: 'fgg',
-        itemPrice: 9.00));
-    myItems.add(Item(
-        itemID: 7,
-        itemName: 'Small with cheese',
-        itemDescription: 'fgg',
-        itemPrice: 11.00));
-    myItems.add(Item(
-        itemID: 8,
-        itemName: 'Shawarma Large',
-        itemDescription: 'fgg',
-        itemPrice: 14.00));
-    myItems.add(Item(
-        itemID: 9,
-        itemName: 'Large with cheese',
-        itemDescription: 'fgg',
-        itemPrice: 16.00));
-    myItems.add(Item(
-        itemID: 10,
-        itemName: 'Beef with rice',
-        itemDescription: 'fgg',
-        itemPrice: 15.00));
-    myItems.add(Item(
-        itemID: 11,
-        itemName: 'Beef plate',
-        itemDescription: 'fgg',
-        itemPrice: 14.00));
+  List<Widget> buildBeef() {
+    List<Widget> beef = [];
+
+    for (int i = 6; i < myItems.length; i++) {
+      beef.add(menu(
+          index: i, name: myItems[i].itemName, price: myItems[i].itemPrice));
+    }
+
+    return beef;
   }
 
   Padding welcoming() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: DefaultTextStyle(
-        style: const TextStyle(
-          fontSize: 20.0,
-        ),
-        child: AnimatedTextKit(
-          animatedTexts: [
-            WavyAnimatedText('Welcome'.toUpperCase()),
-            TypewriterAnimatedText('Please make your order'.toUpperCase(),
-                speed: const Duration(milliseconds: 140)),
-          ],
-          repeatForever: true,
-          onTap: () {},
-        ),
-      ),
-    );
+        padding: const EdgeInsets.only(bottom: 15),
+        child: Text(
+          'Last Order $lastOrder'.toUpperCase(),
+          style: const TextStyle(color: Colors.white),
+        ));
   }
 
   Container backGround({required double w, required double h}) {
@@ -141,7 +122,7 @@ class _MainPageState extends State<MainPage> {
           inactiveBgColor: Colors.grey.withOpacity(0.4),
           inactiveFgColor: Colors.white.withOpacity(0.4),
           totalSwitches: 2,
-          labels: const ['Dine-in', 'Take-away'],
+          labels: const ['Dine-in', 'Takeaway'],
           icons: const [Icons.dinner_dining_rounded, Icons.outbond_rounded],
           activeBgColors: const [
             [Colors.greenAccent],
@@ -153,58 +134,150 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Container myIcon() {
-    return Container(
-      margin: const EdgeInsets.only(top: 25, bottom: 5),
-      width: 150,
-      height: 150,
-      child: Image.asset('lib/assets/logo.png'),
+  myIcon() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 30),
+      child: SizedBox(
+        width: 120,
+        height: 120,
+        child: Image.asset('lib/assets/logo.png'),
+      ),
     );
   }
 
-  Row menu({required String name, required double price}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  Column menu({required int index, required String name, required int price}) {
+    return Column(
       children: [
-        SizedBox(
-          width: 150,
-          child: Text(
-            name,
-            textAlign: TextAlign.left,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            SizedBox(
+              width: 100,
+              child: Text(
+                name,
+                textAlign: TextAlign.left,
+              ),
+            ),
+            SizedBox(
+              width: 55,
+              child: Text(
+                '${price}RM',
+                textAlign: TextAlign.left,
+              ),
+            ),
+            SizedBox(
+              width: 105,
+              child: SpinBox(
+                value: orderQuantity[index],
+                min: 0,
+                max: 25,
+                step: 1,
+                onChanged: (value) {
+                  setState(() {
+                    orderQuantity[index] = value;
+                    if (value != 0) {
+                      activeSubmit = true;
+                    } else {
+                      activeSubmit = false;
+                    }
+                  });
+                },
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                ),
+              ),
+            ),
+            IconButton(
+              iconSize: 20,
+              onPressed: () {
+                setState(() {
+                  activeNote[index] = !activeNote[index];
+                });
+              },
+              icon: activeNote[index]
+                  ? const Icon(Icons.remove_circle_outline_outlined)
+                  : const Icon(Icons.note_alt_rounded),
+            )
+          ],
         ),
-        SizedBox(
-          width: 80,
-          child: Text(
-            '$price RM',
-            textAlign: TextAlign.left,
-          ),
-        ),
+        if (activeNote[index])
+          SizedBox(
+            child: TextField(
+              controller: noteInput[index],
+              keyboardType: TextInputType.multiline,
+              maxLines: 3,
+              minLines: 1,
+              decoration: const InputDecoration(
+                hintText: 'Add note',
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+              ),
+            ),
+          )
       ],
     );
   }
 
-  Container chicken() {
+  Container chicken({required bool op}) {
     return Container(
-      color: Colors.black.withOpacity(0.1),
-      margin: const EdgeInsets.symmetric(horizontal: 150),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+        color: Colors.black.withOpacity(0.1),
+      ),
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       child: Column(children: [
-        Text('Chicken Shawarma'.toUpperCase(),
+        Text(
+            op
+                ? 'Chicken Shawarma'.toUpperCase()
+                : 'Beef Shawarma'.toUpperCase(),
             style: const TextStyle(fontWeight: FontWeight.bold)),
-        ListView(
-          shrinkWrap: true,
-          children: [],
+        SingleChildScrollView(
+          controller: ScrollController(),
+          child: Column(
+            children: op ? buildChicken() : buildBeef(),
+          ),
         )
       ]),
     );
   }
 
+  submitBtn() {
+    return ElevatedButton(
+      onPressed: () async {
+        setState(() {
+          setDefault();
+        });
+        await saveOrder();
+      },
+      style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(
+              const Color.fromARGB(180, 170, 101, 0))),
+      child: Text('Order'.toUpperCase()),
+    );
+  }
+
   myBody({required double w}) {
     return SingleChildScrollView(
-      child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [myIcon(), welcoming(), option(), chicken()]),
-    );
+        controller: ScrollController(),
+        child: Column(children: [
+          myIcon(),
+          welcoming(),
+          option(),
+          chicken(op: true),
+          chicken(op: false),
+          if (activeSubmit)
+            const SizedBox(
+              height: 50,
+            )
+        ]));
   }
 
   @override
@@ -212,9 +285,9 @@ class _MainPageState extends State<MainPage> {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: backGround(h: h, w: w),
-    );
+        body: backGround(h: h, w: w),
+        floatingActionButton: activeSubmit ? Align(
+          alignment: Alignment.bottomCenter,
+          child: submitBtn()) : null);
   }
 }
-
-
