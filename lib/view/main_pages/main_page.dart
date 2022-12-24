@@ -1,5 +1,6 @@
 import 'package:chef_yas/model/item.dart';
 import 'package:chef_yas/model/order.dart';
+import 'package:chef_yas/service/print_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:intl/intl.dart';
@@ -8,8 +9,9 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 class MainPage extends StatefulWidget {
   final int last;
+  final int day;
 
-  const MainPage({Key? key, required this.last}) : super(key: key);
+  const MainPage({Key? key, required this.last, required this.day}) : super(key: key);
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -18,15 +20,15 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   bool activeSubmit = false;
   List<Item> myItems = [
-    Item(itemID: 0, itemName: 'Shawarma S', itemPrice: 6),
-    Item(itemID: 1, itemName: 'Small cheese', itemPrice: 8),
-    Item(itemID: 2, itemName: 'Shawarma L', itemPrice: 10),
-    Item(itemID: 3, itemName: 'Large cheese', itemPrice: 12),
+    Item(itemID: 0, itemName: 'Chicken S', itemPrice: 6),
+    Item(itemID: 1, itemName: 'Chicken S/CH', itemPrice: 8),
+    Item(itemID: 2, itemName: 'Chicken L', itemPrice: 10),
+    Item(itemID: 3, itemName: 'Chicken L/CH', itemPrice: 12),
     Item(itemID: 4, itemName: 'Chicken plate', itemPrice: 10),
-    Item(itemID: 5, itemName: 'Shawarma S', itemPrice: 9),
-    Item(itemID: 6, itemName: 'Small cheese', itemPrice: 11),
-    Item(itemID: 7, itemName: 'Shawarma L', itemPrice: 14),
-    Item(itemID: 8, itemName: 'Large cheese', itemPrice: 16),
+    Item(itemID: 5, itemName: 'Beef S', itemPrice: 9),
+    Item(itemID: 6, itemName: 'Beef S/CH', itemPrice: 11),
+    Item(itemID: 7, itemName: 'Beef L', itemPrice: 14),
+    Item(itemID: 8, itemName: 'Beef L/CH', itemPrice: 16),
     Item(itemID: 9, itemName: 'Beef plate', itemPrice: 14),
   ];
   List<bool> activeNote = List.generate(10, ((index) => false));
@@ -34,12 +36,12 @@ class _MainPageState extends State<MainPage> {
   List<double> orderQuantity = List.generate(10, (index) => 0);
   int lastOrder = 0;
   int orderType = 0;
-
+  int savedDate = 0;
   Future saveOrder() async {
     int currentDate = DateTime.now().day;
     SharedPreferences preferences = await SharedPreferences.getInstance();
 
-    int savedDate = preferences.getInt('date') ?? 0;
+    savedDate = preferences.getInt('date') ?? 0;
     if (savedDate < currentDate || (savedDate != 0 && savedDate > currentDate)) {
       preferences.setInt('date', currentDate);
       preferences.setInt('lastOrder', 0);
@@ -55,6 +57,7 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     lastOrder = widget.last;
+    savedDate = widget.day;
   }
 
   void setDefault() {
@@ -107,7 +110,6 @@ class _MainPageState extends State<MainPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color.fromARGB(255, 75, 44, 0),
             Color.fromARGB(255, 113, 67, 0),
             Color.fromARGB(255, 170, 101, 0),
             Color.fromARGB(255, 255, 152, 0),
@@ -128,14 +130,14 @@ class _MainPageState extends State<MainPage> {
           initialLabelIndex: orderType,
           cornerRadius: 20.0,
           activeFgColor: Colors.black,
-          inactiveBgColor: Colors.grey.withOpacity(0.4),
-          inactiveFgColor: Colors.white.withOpacity(0.4),
+          inactiveBgColor: Colors.grey.withOpacity(0.3),
+          inactiveFgColor: Colors.white.withOpacity(0.3),
           totalSwitches: 2,
           labels: const ['Dine-in', 'Takeaway'],
           icons: const [Icons.dinner_dining_rounded, Icons.outbond_rounded],
           activeBgColors: const [
             [Colors.greenAccent],
-            [Colors.blueAccent]
+            [Colors.greenAccent]
           ],
           onToggle: (index) {
             setState(() {
@@ -298,11 +300,13 @@ class _MainPageState extends State<MainPage> {
       onPressed: () async {
         setState(() {
           if (activeSubmit) {
-            makeOrder();
+            //  makeOrder();
           }
-          setDefault();
+          // setDefault();
         });
-        await saveOrder();
+        // await saveOrder();
+
+        showMyBottomSheet();
       },
       style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
       child: SizedBox(
@@ -408,6 +412,20 @@ class _MainPageState extends State<MainPage> {
               ],
             )
         ]));
+  }
+
+  showMyBottomSheet() {
+    return showModalBottomSheet(
+      enableDrag: true,
+      context: context,
+      isDismissible: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
+      ),
+      builder: (context) => const SingleChildScrollView(
+        child: PrinterService(),
+      ),
+    );
   }
 
   @override
