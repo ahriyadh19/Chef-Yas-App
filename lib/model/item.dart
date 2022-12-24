@@ -12,6 +12,7 @@ class Item {
     this.itemNote,
     required this.itemPrice,
   });
+  
 
   Item copyWith({
     int? itemID,
@@ -47,8 +48,7 @@ class Item {
 
   String toJson() => json.encode(toMap());
 
-  factory Item.fromJson(String source) =>
-      Item.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Item.fromJson(String source) => Item.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -58,18 +58,19 @@ class Item {
   @override
   bool operator ==(covariant Item other) {
     if (identical(this, other)) return true;
-
-    return other.itemID == itemID &&
-        other.itemName == itemName &&
-        other.itemNote == itemNote &&
-        other.itemPrice == itemPrice;
+  
+    return 
+      other.itemID == itemID &&
+      other.itemName == itemName &&
+      other.itemNote == itemNote &&
+      other.itemPrice == itemPrice;
   }
 
   @override
   int get hashCode {
     return itemID.hashCode ^
-        itemName.hashCode ^
-        itemNote.hashCode ^
-        itemPrice.hashCode;
+      itemName.hashCode ^
+      itemNote.hashCode ^
+      itemPrice.hashCode;
   }
 }

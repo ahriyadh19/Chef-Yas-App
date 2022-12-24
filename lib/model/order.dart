@@ -3,14 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:chef_yas/model/item.dart';
 
 class Order {
-  String orderID;
   DateTime orderTime;
   int orderNumber;
   int orderType;
-  double total;
+  int total;
   List<Item> items;
   Order({
-    required this.orderID,
     required this.orderTime,
     required this.orderNumber,
     required this.orderType,
@@ -19,15 +17,13 @@ class Order {
   });
 
   Order copyWith({
-    String? orderID,
     DateTime? orderTime,
     int? orderNumber,
     int? orderType,
-    double? total,
+    int? total,
     List<Item>? items,
   }) {
     return Order(
-      orderID: orderID ?? this.orderID,
       orderTime: orderTime ?? this.orderTime,
       orderNumber: orderNumber ?? this.orderNumber,
       orderType: orderType ?? this.orderType,
@@ -38,7 +34,6 @@ class Order {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'orderID': orderID,
       'orderTime': orderTime.millisecondsSinceEpoch,
       'orderNumber': orderNumber,
       'orderType': orderType,
@@ -49,11 +44,10 @@ class Order {
 
   factory Order.fromMap(Map<String, dynamic> map) {
     return Order(
-      orderID: map['orderID'] as String,
       orderTime: DateTime.fromMillisecondsSinceEpoch(map['orderTime'] as int),
       orderNumber: map['orderNumber'] as int,
       orderType: map['orderType'] as int,
-      total: map['total'] as double,
+      total: map['total'] as int,
       items: List<Item>.from((map['items'] as List<int>).map<Item>((x) => Item.fromMap(x as Map<String,dynamic>),),),
     );
   }
@@ -64,7 +58,7 @@ class Order {
 
   @override
   String toString() {
-    return 'Order(orderID: $orderID, orderTime: $orderTime, orderNumber: $orderNumber, orderType: $orderType, total: $total, items: $items)';
+    return 'Order(orderTime: $orderTime, orderNumber: $orderNumber, orderType: $orderType, total: $total, items: $items)';
   }
 
   @override
@@ -72,7 +66,6 @@ class Order {
     if (identical(this, other)) return true;
   
     return 
-      other.orderID == orderID &&
       other.orderTime == orderTime &&
       other.orderNumber == orderNumber &&
       other.orderType == orderType &&
@@ -82,8 +75,7 @@ class Order {
 
   @override
   int get hashCode {
-    return orderID.hashCode ^
-      orderTime.hashCode ^
+    return orderTime.hashCode ^
       orderNumber.hashCode ^
       orderType.hashCode ^
       total.hashCode ^

@@ -1,4 +1,5 @@
 import 'package:chef_yas/model/item.dart';
+import 'package:chef_yas/model/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,6 +7,7 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 class MainPage extends StatefulWidget {
   final int last;
+
   const MainPage({Key? key, required this.last}) : super(key: key);
 
   @override
@@ -19,29 +21,33 @@ class _MainPageState extends State<MainPage> {
     Item(itemID: 1, itemName: 'Small cheese', itemPrice: 8),
     Item(itemID: 2, itemName: 'Shawarma L', itemPrice: 10),
     Item(itemID: 3, itemName: 'Large cheese', itemPrice: 12),
-    Item(itemID: 4, itemName: 'Chicken rice', itemPrice: 12),
-    Item(itemID: 5, itemName: 'Chicken plate', itemPrice: 10),
-    Item(itemID: 6, itemName: 'Shawarma S', itemPrice: 9),
-    Item(itemID: 7, itemName: 'Small cheese', itemPrice: 11),
-    Item(itemID: 8, itemName: 'Shawarma L', itemPrice: 14),
-    Item(itemID: 9, itemName: 'Large cheese', itemPrice: 16),
-    Item(itemID: 10, itemName: 'Beef rice', itemPrice: 15),
-    Item(itemID: 11, itemName: 'Beef plate', itemPrice: 14),
+    Item(itemID: 4, itemName: 'Chicken plate', itemPrice: 10),
+    Item(itemID: 5, itemName: 'Shawarma S', itemPrice: 9),
+    Item(itemID: 6, itemName: 'Small cheese', itemPrice: 11),
+    Item(itemID: 7, itemName: 'Shawarma L', itemPrice: 14),
+    Item(itemID: 8, itemName: 'Large cheese', itemPrice: 16),
+    Item(itemID: 9, itemName: 'Beef plate', itemPrice: 14),
   ];
-  List<bool> activeNote = List.generate(12, ((index) => false));
-  List<TextEditingController> noteInput =
-      List.generate(12, ((index) => TextEditingController()));
-  List<double> orderQuantity = List.generate(
-    12,
-    (index) => 0,
-  );
-
+  List<bool> activeNote = List.generate(10, ((index) => false));
+  List<TextEditingController> noteInput = List.generate(10, ((index) => TextEditingController()));
+  List<double> orderQuantity = List.generate(10, (index) => 0);
   int lastOrder = 0;
+  int orderType = 0;
 
   Future saveOrder() async {
+    int currentDate = DateTime.now().day;
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    lastOrder++;
-    preferences.setInt('lastOrder', lastOrder);
+
+    int savedDate = preferences.getInt('date') ?? 0;
+    if (savedDate < currentDate || (savedDate != 0 && savedDate > currentDate)) {
+      preferences.setInt('date', currentDate);
+      preferences.setInt('lastOrder', 0);
+      lastOrder = 0;
+      preferences.setInt('lastOrder', ++lastOrder);
+    } else {
+      lastOrder++;
+      preferences.setInt('lastOrder', lastOrder);
+    }
   }
 
   @override
@@ -51,20 +57,22 @@ class _MainPageState extends State<MainPage> {
   }
 
   void setDefault() {
-    for (int i = 0; i < myItems.length; i++) {
-      activeNote[i] = false;
-      noteInput[i].clear();
-      orderQuantity[i] = 0;
-    }
-    activeSubmit = false;
+    setState(() {
+      for (int i = 0; i < myItems.length; i++) {
+        activeNote[i] = false;
+        noteInput[i].clear();
+        orderQuantity[i] = 0;
+      }
+      activeSubmit = false;
+      orderType = 0;
+    });
   }
 
   List<Widget> buildChicken() {
     List<Widget> ch = [];
 
-    for (int i = 0; i < 6; i++) {
-      ch.add(menu(
-          index: i, name: myItems[i].itemName, price: myItems[i].itemPrice));
+    for (int i = 0; i < myItems.length / 2; i++) {
+      ch.add(menu(index: i, name: myItems[i].itemName, price: myItems[i].itemPrice));
     }
     return ch;
   }
@@ -72,9 +80,8 @@ class _MainPageState extends State<MainPage> {
   List<Widget> buildBeef() {
     List<Widget> beef = [];
 
-    for (int i = 6; i < myItems.length; i++) {
-      beef.add(menu(
-          index: i, name: myItems[i].itemName, price: myItems[i].itemPrice));
+    for (int i = myItems.length ~/ 2; i < myItems.length; i++) {
+      beef.add(menu(index: i, name: myItems[i].itemName, price: myItems[i].itemPrice));
     }
 
     return beef;
@@ -84,7 +91,7 @@ class _MainPageState extends State<MainPage> {
     return Padding(
         padding: const EdgeInsets.only(bottom: 15),
         child: Text(
-          'Last Order $lastOrder'.toUpperCase(),
+          'Last Order ${lastOrder == 0 ? "_" : lastOrder}'.toUpperCase(),
           style: const TextStyle(color: Colors.white),
         ));
   }
@@ -116,7 +123,7 @@ class _MainPageState extends State<MainPage> {
         padding: const EdgeInsets.all(12),
         child: ToggleSwitch(
           minWidth: 150,
-          initialLabelIndex: 0,
+          initialLabelIndex: orderType,
           cornerRadius: 20.0,
           activeFgColor: Colors.black,
           inactiveBgColor: Colors.grey.withOpacity(0.4),
@@ -128,13 +135,17 @@ class _MainPageState extends State<MainPage> {
             [Colors.greenAccent],
             [Colors.blueAccent]
           ],
-          onToggle: (index) {},
+          onToggle: (index) {
+            setState(() {
+              orderType = index!;
+            });
+          },
         ),
       ),
     );
   }
 
-  myIcon() {
+  Padding myIcon() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 30),
       child: SizedBox(
@@ -175,10 +186,11 @@ class _MainPageState extends State<MainPage> {
                 onChanged: (value) {
                   setState(() {
                     orderQuantity[index] = value;
-                    if (value != 0) {
-                      activeSubmit = true;
-                    } else {
-                      activeSubmit = false;
+                    activeSubmit = false;
+                    for (int i = 0; i < orderQuantity.length; i++) {
+                      if (orderQuantity[i] != 0) {
+                        activeSubmit = true;
+                      }
                     }
                   });
                 },
@@ -196,11 +208,10 @@ class _MainPageState extends State<MainPage> {
               onPressed: () {
                 setState(() {
                   activeNote[index] = !activeNote[index];
+                  noteInput[index].clear();
                 });
               },
-              icon: activeNote[index]
-                  ? const Icon(Icons.remove_circle_outline_outlined)
-                  : const Icon(Icons.note_alt_rounded),
+              icon: activeNote[index] ? const Icon(Icons.remove_circle_outline_outlined) : const Icon(Icons.note_alt_rounded),
             )
           ],
         ),
@@ -234,11 +245,7 @@ class _MainPageState extends State<MainPage> {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(12),
       child: Column(children: [
-        Text(
-            op
-                ? 'Chicken Shawarma'.toUpperCase()
-                : 'Beef Shawarma'.toUpperCase(),
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(op ? 'Chicken Shawarma'.toUpperCase() : 'Beef Shawarma'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)),
         SingleChildScrollView(
           controller: ScrollController(),
           child: Column(
@@ -249,22 +256,42 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  submitBtn() {
+  ElevatedButton submitBtn() {
     return ElevatedButton(
       onPressed: () async {
         setState(() {
+          Order o;
+          if (activeSubmit) {
+            int t = 0;
+            o = Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: t);
+            for (var i = 0; i < orderQuantity.length; i++) {
+              if (orderQuantity[i] != 0) {
+                o.items.add(myItems[i]);
+                t += myItems[i].itemPrice * orderQuantity[i].toInt();
+              }
+            }
+            o.total = t;
+          }
           setDefault();
         });
         await saveOrder();
       },
-      style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(
-              const Color.fromARGB(180, 170, 101, 0))),
-      child: Text('Order'.toUpperCase()),
+      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+      child: SizedBox(
+        width: 80,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.done_all_outlined),
+            SizedBox(width: 8),
+            Text('ORDER'),
+          ],
+        ),
+      ),
     );
   }
 
-  myBody({required double w}) {
+  SingleChildScrollView myBody({required double w}) {
     return SingleChildScrollView(
         controller: ScrollController(),
         child: Column(children: [
@@ -274,8 +301,12 @@ class _MainPageState extends State<MainPage> {
           chicken(op: true),
           chicken(op: false),
           if (activeSubmit)
-            const SizedBox(
-              height: 50,
+            Column(
+              children: const [
+                SizedBox(
+                  height: 50,
+                ),
+              ],
             )
         ]));
   }
@@ -285,9 +316,6 @@ class _MainPageState extends State<MainPage> {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
     return Scaffold(
-        body: backGround(h: h, w: w),
-        floatingActionButton: activeSubmit ? Align(
-          alignment: Alignment.bottomCenter,
-          child: submitBtn()) : null);
+        body: backGround(h: h, w: w), floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: submitBtn()) : null);
   }
 }

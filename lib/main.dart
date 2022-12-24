@@ -1,8 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:chef_yas/main_pages/main_page.dart';
+import 'package:chef_yas/view/main_pages/main_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
