@@ -2,6 +2,7 @@ import 'package:chef_yas/model/item.dart';
 import 'package:chef_yas/model/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -62,6 +63,7 @@ class _MainPageState extends State<MainPage> {
         activeNote[i] = false;
         noteInput[i].clear();
         orderQuantity[i] = 0;
+        myItems[i].itemNote = null;
       }
       activeSubmit = false;
       orderType = 0;
@@ -183,6 +185,7 @@ class _MainPageState extends State<MainPage> {
                 min: 0,
                 max: 25,
                 step: 1,
+                readOnly: true,
                 onChanged: (value) {
                   setState(() {
                     orderQuantity[index] = value;
@@ -208,7 +211,6 @@ class _MainPageState extends State<MainPage> {
               onPressed: () {
                 setState(() {
                   activeNote[index] = !activeNote[index];
-                  noteInput[index].clear();
                 });
               },
               icon: activeNote[index] ? const Icon(Icons.remove_circle_outline_outlined) : const Icon(Icons.note_alt_rounded),
@@ -216,21 +218,42 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
         if (activeNote[index])
-          SizedBox(
-            child: TextField(
-              controller: noteInput[index],
-              keyboardType: TextInputType.multiline,
-              maxLines: 3,
-              minLines: 1,
-              decoration: const InputDecoration(
-                hintText: 'Add note',
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 150,
+                child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      myItems[index].itemNote = value;
+                    });
+                  },
+                  controller: noteInput[index],
+                  keyboardType: TextInputType.multiline,
+                  maxLines: 3,
+                  minLines: 1,
+                  decoration: const InputDecoration(
+                    hintText: 'Add note',
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                  ),
+                ),
               ),
-            ),
+              IconButton(
+                style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+                onPressed: () {
+                  noteInput[index].clear();
+                },
+                icon: const Icon(
+                  Icons.delete_forever_rounded,
+                  size: 20,
+                ),
+              )
+            ],
           )
       ],
     );
@@ -256,21 +279,26 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  Order makeOrder() {
+    Order o;
+    int t = 0;
+    o = Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: t);
+    for (var i = 0; i < orderQuantity.length; i++) {
+      if (orderQuantity[i] != 0) {
+        o.items.add(myItems[i]);
+        t += myItems[i].itemPrice * orderQuantity[i].toInt();
+      }
+    }
+    o.total = t;
+    return o;
+  }
+
   ElevatedButton submitBtn() {
     return ElevatedButton(
       onPressed: () async {
         setState(() {
-          Order o;
           if (activeSubmit) {
-            int t = 0;
-            o = Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: t);
-            for (var i = 0; i < orderQuantity.length; i++) {
-              if (orderQuantity[i] != 0) {
-                o.items.add(myItems[i]);
-                t += myItems[i].itemPrice * orderQuantity[i].toInt();
-              }
-            }
-            o.total = t;
+            makeOrder();
           }
           setDefault();
         });
@@ -291,6 +319,76 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  Container printResult({required double w}) {
+    Order o = makeOrder();
+    List<double> hold = orderQuantity.where((element) => element != 0).toList();
+    return Container(
+      margin: const EdgeInsets.all(15),
+      padding: const EdgeInsets.symmetric(vertical: 25),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+        color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.2),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: const [
+                  Text('Order Number'),
+                  Text('Date/Time'),
+                  Text('Order Type'),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text('${o.orderNumber}'),
+                  Text(DateFormat.MMMEd().add_jm().format(o.orderTime)),
+                  Text(o.orderType == 0 ? 'Dine-in' : 'Takeaway'),
+                ],
+              ),
+            ],
+          ),
+          Divider(endIndent: w / 6, indent: w / 6, thickness: 2),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: o.items.length,
+            itemBuilder: (_, int index) {
+              return Column(
+                children: [
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(width: 20, child: Text('${index + 1}')),
+                          SizedBox(width: 100, child: Text(o.items[index].itemName)),
+                          SizedBox(width: 40, child: Text('${o.items[index].itemPrice}x${hold[index].toInt()}')),
+                          SizedBox(width: 40, child: Text('${o.items[index].itemPrice * hold[index].toInt()}'))
+                        ],
+                      ),
+                      if (o.items[index].itemNote != null && o.items[index].itemNote!.trim().isNotEmpty) Text('Note: ${o.items[index].itemNote!}')
+                    ],
+                  )
+                ],
+              );
+            },
+          ),
+          Divider(endIndent: w / 6, indent: w / 6, thickness: 2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [const Text('Total'), Text('${o.total}')],
+          )
+        ],
+      ),
+    );
+  }
+
   SingleChildScrollView myBody({required double w}) {
     return SingleChildScrollView(
         controller: ScrollController(),
@@ -302,8 +400,9 @@ class _MainPageState extends State<MainPage> {
           chicken(op: false),
           if (activeSubmit)
             Column(
-              children: const [
-                SizedBox(
+              children: [
+                printResult(w: w),
+                const SizedBox(
                   height: 50,
                 ),
               ],
