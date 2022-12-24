@@ -382,7 +382,7 @@ class _MainPageState extends State<MainPage> {
           Divider(endIndent: w / 6, indent: w / 6, thickness: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [const Text('Total'), Text('${o.total}')],
+            children: [const Text('Total'), Text('${o.total} RM')],
           )
         ],
       ),
