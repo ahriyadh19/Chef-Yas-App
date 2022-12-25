@@ -300,12 +300,11 @@ class _MainPageState extends State<MainPage> {
       onPressed: () async {
         setState(() {
           if (activeSubmit) {
-            //  makeOrder();
+            makeOrder();
           }
-          // setDefault();
+          setDefault();
         });
-        // await saveOrder();
-
+        await saveOrder();
         showMyBottomSheet();
       },
       style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
@@ -416,6 +415,7 @@ class _MainPageState extends State<MainPage> {
 
   showMyBottomSheet() {
     return showModalBottomSheet(
+      backgroundColor: const Color.fromARGB(255, 255, 193, 6),
       enableDrag: true,
       context: context,
       isDismissible: true,
