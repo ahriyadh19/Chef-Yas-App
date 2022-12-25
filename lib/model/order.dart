@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:chef_yas/model/item.dart';
@@ -8,12 +9,14 @@ class Order {
   int orderType;
   int total;
   List<Item> items;
+  List<int> itemsQuantity;
   Order({
     required this.orderTime,
     required this.orderNumber,
     required this.orderType,
     required this.total,
     required this.items,
+    required this.itemsQuantity,
   });
 
   Order copyWith({
@@ -22,6 +25,7 @@ class Order {
     int? orderType,
     int? total,
     List<Item>? items,
+    List<int>? itemsQuantity,
   }) {
     return Order(
       orderTime: orderTime ?? this.orderTime,
@@ -29,6 +33,7 @@ class Order {
       orderType: orderType ?? this.orderType,
       total: total ?? this.total,
       items: items ?? this.items,
+      itemsQuantity: itemsQuantity ?? this.itemsQuantity,
     );
   }
 
@@ -39,6 +44,7 @@ class Order {
       'orderType': orderType,
       'total': total,
       'items': items.map((x) => x.toMap()).toList(),
+      'itemsQuantity': itemsQuantity,
     };
   }
 
@@ -49,7 +55,8 @@ class Order {
       orderType: map['orderType'] as int,
       total: map['total'] as int,
       items: List<Item>.from((map['items'] as List<int>).map<Item>((x) => Item.fromMap(x as Map<String,dynamic>),),),
-    );
+      itemsQuantity: List<int>.from((map['itemsQuantity'] as List<int>),
+    ));
   }
 
   String toJson() => json.encode(toMap());
@@ -58,7 +65,7 @@ class Order {
 
   @override
   String toString() {
-    return 'Order(orderTime: $orderTime, orderNumber: $orderNumber, orderType: $orderType, total: $total, items: $items)';
+    return 'Order(orderTime: $orderTime, orderNumber: $orderNumber, orderType: $orderType, total: $total, items: $items, itemsQuantity: $itemsQuantity)';
   }
 
   @override
@@ -70,7 +77,8 @@ class Order {
       other.orderNumber == orderNumber &&
       other.orderType == orderType &&
       other.total == total &&
-      listEquals(other.items, items);
+      listEquals(other.items, items) &&
+      listEquals(other.itemsQuantity, itemsQuantity);
   }
 
   @override
@@ -79,6 +87,7 @@ class Order {
       orderNumber.hashCode ^
       orderType.hashCode ^
       total.hashCode ^
-      items.hashCode;
+      items.hashCode ^
+      itemsQuantity.hashCode;
   }
 }

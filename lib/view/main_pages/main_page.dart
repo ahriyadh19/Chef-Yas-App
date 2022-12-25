@@ -285,10 +285,11 @@ class _MainPageState extends State<MainPage> {
   Order makeOrder() {
     Order o;
     int t = 0;
-    o = Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: t);
+    o = Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: t, itemsQuantity: []);
     for (var i = 0; i < orderQuantity.length; i++) {
       if (orderQuantity[i] != 0) {
         o.items.add(myItems[i]);
+        o.itemsQuantity.add(orderQuantity[i].toInt());
         t += myItems[i].itemPrice * orderQuantity[i].toInt();
       }
     }
@@ -326,7 +327,6 @@ class _MainPageState extends State<MainPage> {
 
   Container printResult({required double w}) {
     Order o = makeOrder();
-    List<double> hold = orderQuantity.where((element) => element != 0).toList();
     return Container(
       margin: const EdgeInsets.all(15),
       padding: const EdgeInsets.symmetric(vertical: 25),
@@ -371,10 +371,10 @@ class _MainPageState extends State<MainPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(width: 20, child: Text('${hold[index].toInt()}')),
+                          SizedBox(width: 20, child: Text('${o.itemsQuantity[index].toInt()}')),
                           SizedBox(width: 100, child: Text(o.items[index].itemName)),
                           SizedBox(width: 20, child: Text('${o.items[index].itemPrice}')),
-                          SizedBox(width: 40, child: Text('${o.items[index].itemPrice * hold[index].toInt()}'))
+                          SizedBox(width: 40, child: Text('${o.items[index].itemPrice * o.itemsQuantity[index]}'))
                         ],
                       ),
                       if (o.items[index].itemNote != null && o.items[index].itemNote!.trim().isNotEmpty) Text('Note: ${o.items[index].itemNote!}')
