@@ -8,7 +8,6 @@ class PrinterService extends StatefulWidget {
   @override
   State<PrinterService> createState() => _PrinterServiceState();
 }
-
 class _PrinterServiceState extends State<PrinterService> {
   BluetoothPrint bluetoothPrint = BluetoothPrint.instance;
 

@@ -37,6 +37,7 @@ class _MainPageState extends State<MainPage> {
   int lastOrder = 0;
   int orderType = 0;
   int savedDate = 0;
+  int totalRes = 0;
   Future saveOrder() async {
     int currentDate = DateTime.now().day;
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -176,7 +177,7 @@ class _MainPageState extends State<MainPage> {
             SizedBox(
               width: 55,
               child: Text(
-                '${price}RM',
+                'RM$price',
                 textAlign: TextAlign.left,
               ),
             ),
@@ -292,6 +293,7 @@ class _MainPageState extends State<MainPage> {
       }
     }
     o.total = t;
+    totalRes = t;
     return o;
   }
 
@@ -309,13 +311,13 @@ class _MainPageState extends State<MainPage> {
       },
       style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
       child: SizedBox(
-        width: 80,
+        width: 150,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.done_all_outlined),
-            SizedBox(width: 8),
-            Text('ORDER'),
+          children: [
+            const Icon(Icons.done_all_outlined),
+            const SizedBox(width: 8),
+            Text('ORDER (RM$totalRes)'),
           ],
         ),
       ),
@@ -369,9 +371,9 @@ class _MainPageState extends State<MainPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(width: 20, child: Text('${index + 1}')),
+                          SizedBox(width: 20, child: Text('${hold[index].toInt()}')),
                           SizedBox(width: 100, child: Text(o.items[index].itemName)),
-                          SizedBox(width: 40, child: Text('${o.items[index].itemPrice}x${hold[index].toInt()}')),
+                          SizedBox(width: 20, child: Text('${o.items[index].itemPrice}')),
                           SizedBox(width: 40, child: Text('${o.items[index].itemPrice * hold[index].toInt()}'))
                         ],
                       ),
@@ -385,7 +387,7 @@ class _MainPageState extends State<MainPage> {
           Divider(endIndent: w / 6, indent: w / 6, thickness: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [const Text('Total'), Text('${o.total} RM')],
+            children: [const Text('Total'), Text('RM${o.total}')],
           )
         ],
       ),
