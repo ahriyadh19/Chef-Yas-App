@@ -285,7 +285,7 @@ class _MainPageState extends State<MainPage> {
     return processOrder;
   }
 
-  ElevatedButton submitBtn() {
+  ElevatedButton orderBtn() {
     return ElevatedButton(
       onPressed: () {
         setState(() {
@@ -324,7 +324,7 @@ class _MainPageState extends State<MainPage> {
               children: [
                 ShowResult(o: makeOrder()),
                 const SizedBox(
-                  height: 50,
+                  height: 60,
                 ),
               ],
             )
@@ -354,7 +354,7 @@ class _MainPageState extends State<MainPage> {
       onWillPop: () async => false,
       child: Scaffold(
           body: BackGround(myBody: myBody(), isSub: false),
-          floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: submitBtn()) : null),
+          floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: orderBtn()) : null),
     );
   }
 }
