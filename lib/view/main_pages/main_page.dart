@@ -1,9 +1,10 @@
 import 'package:chef_yas/model/item.dart';
 import 'package:chef_yas/model/order.dart';
 import 'package:chef_yas/service/print_page.dart';
+import 'package:chef_yas/view/content/background.dart';
+import 'package:chef_yas/view/content/show_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -103,26 +104,6 @@ class _MainPageState extends State<MainPage> {
           'Last Order ${lastOrder == 0 ? "_" : lastOrder}'.toUpperCase(),
           style: const TextStyle(color: Colors.white),
         ));
-  }
-
-  Container backGround({required double w, required double h}) {
-    return Container(
-      height: h,
-      width: w,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color.fromARGB(255, 113, 67, 0),
-            Color.fromARGB(255, 170, 101, 0),
-            Color.fromARGB(255, 255, 152, 0),
-            Color.fromARGB(255, 255, 192, 6),
-          ],
-        ),
-      ),
-      child: myBody(w: w),
-    );
   }
 
   Center option() {
@@ -325,77 +306,13 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
-
+/*
   Container printResult({required double w}) {
     Order o = makeOrder();
-    return Container(
-      margin: const EdgeInsets.all(15),
-      padding: const EdgeInsets.symmetric(vertical: 25),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
-        color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.2),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
-                  Text('Order Number'),
-                  Text('Date& Time'),
-                  Text('Order Type'),
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text('${o.orderNumber}'),
-                  Text(DateFormat.MMMEd().add_jm().format(o.orderTime)),
-                  Text(o.orderType == 0 ? 'Dine-in' : 'Takeaway'),
-                ],
-              ),
-            ],
-          ),
-          Divider(endIndent: w / 6, indent: w / 6, thickness: 2),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: o.items.length,
-            itemBuilder: (_, int index) {
-              return Column(
-                children: [
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(width: 20, child: Text('${o.itemsQuantity[index]}')),
-                          SizedBox(width: 100, child: Text(o.items[index].itemName)),
-                          SizedBox(width: 20, child: Text('${o.items[index].itemPrice}')),
-                          SizedBox(width: 40, child: Text('${o.items[index].itemPrice * o.itemsQuantity[index]}'))
-                        ],
-                      ),
-                      if (o.items[index].itemNote != null && o.items[index].itemNote!.trim().isNotEmpty) Text('Note: ${o.items[index].itemNote!}')
-                    ],
-                  )
-                ],
-              );
-            },
-          ),
-          Divider(endIndent: w / 6, indent: w / 6, thickness: 2),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [const Text('Total'), Text('RM${o.total}')],
-          )
-        ],
-      ),
-    );
-  }
+    return 
+  }*/
 
-  SingleChildScrollView myBody({required double w}) {
+  SingleChildScrollView myBody() {
     return SingleChildScrollView(
         controller: ScrollController(),
         child: Column(children: [
@@ -407,7 +324,7 @@ class _MainPageState extends State<MainPage> {
           if (activeSubmit)
             Column(
               children: [
-                printResult(w: w),
+                ShowResult(o: makeOrder()),
                 const SizedBox(
                   height: 50,
                 ),
@@ -416,9 +333,8 @@ class _MainPageState extends State<MainPage> {
         ]));
   }
 
-  showMyBottomSheet() async {
+  Future showMyBottomSheet() async {
     return await showModalBottomSheet(
-      backgroundColor: const Color.fromARGB(255, 255, 193, 6),
       enableDrag: true,
       context: context,
       isDismissible: true,
@@ -426,19 +342,21 @@ class _MainPageState extends State<MainPage> {
         borderRadius: BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
       ),
       builder: (_) {
-        return PrinterService(newOrder: finalOrder ?? makeOrder(), clearOldData: setDefault, save: saveOrder);
+        return BackGround(
+          myBody: PrinterService(newOrder: finalOrder ?? makeOrder(), clearOldData: setDefault, save: saveOrder),
+          isSub: true,
+        );
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    double h = MediaQuery.of(context).size.height;
-    double w = MediaQuery.of(context).size.width;
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-          body: backGround(h: h, w: w), floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: submitBtn()) : null),
+          body: BackGround(myBody: myBody(), isSub: false),
+          floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: submitBtn()) : null),
     );
   }
 }

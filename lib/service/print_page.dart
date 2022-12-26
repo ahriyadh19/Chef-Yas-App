@@ -1,5 +1,6 @@
 import 'package:bluetooth_print/bluetooth_print.dart';
 import 'package:bluetooth_print/bluetooth_print_model.dart';
+import 'package:chef_yas/view/content/show_result.dart';
 import 'package:flutter/material.dart';
 import 'package:chef_yas/model/order.dart';
 
@@ -79,15 +80,15 @@ class _PrinterServiceState extends State<PrinterService> {
       setState(() {
         isOn = false;
       });
-      print(e);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return isOn
-        ? SizedBox(
-            height: 400,
+        ? Container(
+            decoration: const BoxDecoration(borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),
+            height: 800,
             child: SingleChildScrollView(
               child: Column(
                 children: [
@@ -101,7 +102,7 @@ class _PrinterServiceState extends State<PrinterService> {
                     ],
                   ),
                   const Divider(
-                    thickness: 3,
+                    thickness: 1.2,
                     indent: 80,
                     endIndent: 80,
                     color: Colors.black,
@@ -132,16 +133,10 @@ class _PrinterServiceState extends State<PrinterService> {
                   if (_device == null)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.print_disabled_rounded),
-                        const SizedBox(width: 8),
-                        const Text('No printer found'),
-                        const SizedBox(width: 8),
-                        SizedBox(child: Text('${myOrder.toString().length}'))
-                      ],
+                      children: const [Icon(Icons.print_disabled_rounded), SizedBox(width: 8), Text('No printer found')],
                     ),
                   const Divider(
-                    thickness: 3,
+                    thickness: 1.2,
                     color: Colors.black,
                     indent: 60,
                     endIndent: 60,
@@ -200,24 +195,33 @@ class _PrinterServiceState extends State<PrinterService> {
                             ),
                           ],
                         ),
-                        const Divider(),
-                        ElevatedButton(
-                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.print_rounded),
-                              SizedBox(width: 8),
-                              Text('Print Test'),
-                            ],
+                        const Divider(
+                          color: Colors.black,
+                        ),
+                        ShowResult(o: myOrder!),
+                        const Divider(
+                          color: Colors.black,
+                        ),
+                        SizedBox(
+                          width: 150,
+                          child: ElevatedButton(
+                            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.print_rounded),
+                                SizedBox(width: 8),
+                                Text('Print Test'),
+                              ],
+                            ),
+                            onPressed: () {
+                              saveOrder();
+                              clearData();
+                              setState(() {
+                                Navigator.pop(context);
+                              });
+                            },
                           ),
-                          onPressed: () {
-                            saveOrder();
-                            clearData();
-                            setState(() {
-                              Navigator.pop(context);
-                            });
-                          },
                         )
                       ],
                     ),
