@@ -19,7 +19,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   bool activeSubmit = false;
-  List<Item> myItems = [
+  final List<Item> myItems = [
     Item(itemID: 0, itemName: 'Chicken S', itemPrice: 6),
     Item(itemID: 1, itemName: 'Chicken S/CH', itemPrice: 8),
     Item(itemID: 2, itemName: 'Chicken L', itemPrice: 10),
@@ -38,6 +38,8 @@ class _MainPageState extends State<MainPage> {
   int orderType = 0;
   int savedDate = 0;
   int totalRes = 0;
+  late Order? finalOrder;
+
   Future saveOrder() async {
     int currentDate = DateTime.now().day;
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -69,6 +71,7 @@ class _MainPageState extends State<MainPage> {
         orderQuantity[i] = 0;
         myItems[i].itemNote = null;
       }
+      finalOrder = null;
       activeSubmit = false;
       orderType = 0;
     });
@@ -283,32 +286,30 @@ class _MainPageState extends State<MainPage> {
   }
 
   Order makeOrder() {
-    Order o;
+    Order processOrder;
     int t = 0;
-    o = Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: t, itemsQuantity: []);
+    processOrder = Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: t, itemsQuantity: []);
     for (var i = 0; i < orderQuantity.length; i++) {
       if (orderQuantity[i] != 0) {
-        o.items.add(myItems[i]);
-        o.itemsQuantity.add(orderQuantity[i].toInt());
+        processOrder.items.add(myItems[i]);
+        processOrder.itemsQuantity.add(orderQuantity[i].toInt());
         t += myItems[i].itemPrice * orderQuantity[i].toInt();
       }
     }
-    o.total = t;
+    processOrder.total = t;
     totalRes = t;
-    return o;
+    return processOrder;
   }
 
   ElevatedButton submitBtn() {
     return ElevatedButton(
-      onPressed: () async {
+      onPressed: () {
         setState(() {
           if (activeSubmit) {
-            makeOrder();
+            finalOrder = makeOrder();
+            showMyBottomSheet();
           }
-          setDefault();
         });
-        await saveOrder();
-        showMyBottomSheet();
       },
       style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
       child: SizedBox(
@@ -344,7 +345,7 @@ class _MainPageState extends State<MainPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: const [
                   Text('Order Number'),
-                  Text('Date/Time'),
+                  Text('Date& Time'),
                   Text('Order Type'),
                 ],
               ),
@@ -371,7 +372,7 @@ class _MainPageState extends State<MainPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(width: 20, child: Text('${o.itemsQuantity[index].toInt()}')),
+                          SizedBox(width: 20, child: Text('${o.itemsQuantity[index]}')),
                           SizedBox(width: 100, child: Text(o.items[index].itemName)),
                           SizedBox(width: 20, child: Text('${o.items[index].itemPrice}')),
                           SizedBox(width: 40, child: Text('${o.items[index].itemPrice * o.itemsQuantity[index]}'))
@@ -415,8 +416,8 @@ class _MainPageState extends State<MainPage> {
         ]));
   }
 
-  showMyBottomSheet() {
-    return showModalBottomSheet(
+  showMyBottomSheet() async {
+    return await showModalBottomSheet(
       backgroundColor: const Color.fromARGB(255, 255, 193, 6),
       enableDrag: true,
       context: context,
@@ -424,9 +425,9 @@ class _MainPageState extends State<MainPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
       ),
-      builder: (context) => const SingleChildScrollView(
-        child: PrinterService(),
-      ),
+      builder: (_) {
+        return PrinterService(newOrder: finalOrder ?? makeOrder(), clearOldData: setDefault, save: saveOrder);
+      },
     );
   }
 
@@ -434,7 +435,10 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
-    return Scaffold(
-        body: backGround(h: h, w: w), floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: submitBtn()) : null);
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+          body: backGround(h: h, w: w), floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: submitBtn()) : null),
+    );
   }
 }
