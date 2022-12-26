@@ -233,7 +233,10 @@ class _MainPageState extends State<MainPage> {
               IconButton(
                 style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
                 onPressed: () {
-                  noteInput[index].clear();
+                  setState(() {
+                    noteInput[index].clear();
+                    myItems[index].itemNote = null;
+                  });
                 },
                 icon: const Icon(
                   Icons.delete_forever_rounded,
