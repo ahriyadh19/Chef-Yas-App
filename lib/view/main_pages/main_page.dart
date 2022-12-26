@@ -2,6 +2,7 @@ import 'package:chef_yas/model/item.dart';
 import 'package:chef_yas/model/order.dart';
 import 'package:chef_yas/service/print_page.dart';
 import 'package:chef_yas/view/content/background.dart';
+import 'package:chef_yas/view/content/my_icon.dart';
 import 'package:chef_yas/view/content/show_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
@@ -32,13 +33,14 @@ class _MainPageState extends State<MainPage> {
     Item(itemID: 8, itemName: 'Beef L/CH', itemPrice: 16),
     Item(itemID: 9, itemName: 'Beef plate', itemPrice: 14),
   ];
-  List<bool> activeNote = List.generate(10, ((index) => false));
-  List<TextEditingController> noteInput = List.generate(10, ((index) => TextEditingController()));
-  List<double> orderQuantity = List.generate(10, (index) => 0);
   int lastOrder = 0;
   int orderType = 0;
   int savedDate = 0;
   int totalRes = 0;
+  static const int menuItemsNumber = 10;
+  List<bool> activeNote = List.generate(menuItemsNumber, ((index) => false));
+  List<TextEditingController> noteInput = List.generate(menuItemsNumber, ((index) => TextEditingController()));
+  List<double> orderQuantity = List.generate(menuItemsNumber, (index) => 0);
   late Order? finalOrder;
 
   Future saveOrder() async {
@@ -81,7 +83,7 @@ class _MainPageState extends State<MainPage> {
   List<Widget> buildChicken() {
     List<Widget> ch = [];
 
-    for (int i = 0; i < myItems.length / 2; i++) {
+    for (int i = 0; i < menuItemsNumber / 2; i++) {
       ch.add(menu(index: i, name: myItems[i].itemName, price: myItems[i].itemPrice));
     }
     return ch;
@@ -90,7 +92,7 @@ class _MainPageState extends State<MainPage> {
   List<Widget> buildBeef() {
     List<Widget> beef = [];
 
-    for (int i = myItems.length ~/ 2; i < myItems.length; i++) {
+    for (int i = menuItemsNumber ~/ 2; i < myItems.length; i++) {
       beef.add(menu(index: i, name: myItems[i].itemName, price: myItems[i].itemPrice));
     }
 
@@ -130,17 +132,6 @@ class _MainPageState extends State<MainPage> {
             });
           },
         ),
-      ),
-    );
-  }
-
-  Padding myIcon() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 30),
-      child: SizedBox(
-        width: 120,
-        height: 120,
-        child: Image.asset('lib/assets/logo.png'),
       ),
     );
   }
@@ -314,7 +305,7 @@ class _MainPageState extends State<MainPage> {
     return SingleChildScrollView(
         controller: ScrollController(),
         child: Column(children: [
-          myIcon(),
+          const MyIcon(),
           welcoming(),
           option(),
           chicken(op: true),

@@ -31,17 +31,17 @@ class ShowResult extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: const [
-                    Text('Order Number'),
-                    Text('Date& Time'),
-                    Text('Order Type'),
+                    Text('Number'),
+                    Text('Type'),
+                    Text('Date & Time'),
                   ],
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text('${o.orderNumber}'),
-                    Text(DateFormat.MMMEd().add_jm().format(o.orderTime)),
                     Text(o.orderType == 0 ? 'Dine-in' : 'Takeaway'),
+                    Text(DateFormat.MMMEd().add_jm().format(o.orderTime).split(',').join()),
                   ],
                 ),
               ],
@@ -77,7 +77,7 @@ class ShowResult extends StatelessWidget {
                         ),
                         if (o.items[index].itemNote != null && o.items[index].itemNote!.trim().isNotEmpty)
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(5),
                             child: Align(alignment: Alignment.centerLeft, child: Text('Note: ${o.items[index].itemNote!}')),
                           )
                       ],
