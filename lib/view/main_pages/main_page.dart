@@ -306,11 +306,6 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
-/*
-  Container printResult({required double w}) {
-    Order o = makeOrder();
-    return 
-  }*/
 
   SingleChildScrollView myBody() {
     return SingleChildScrollView(
