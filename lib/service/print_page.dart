@@ -22,7 +22,6 @@ class PrinterService extends StatefulWidget {
 
 class _PrinterServiceState extends State<PrinterService> {
   BluetoothPrint bluetoothPrint = BluetoothPrint.instance;
-  bool isOn = true;
   bool _connected = false;
   BluetoothDevice? _device;
   String tips = 'No device connect';
@@ -94,6 +93,7 @@ class _PrinterServiceState extends State<PrinterService> {
     out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
     out += "${"Order Type".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
     out += "${"Date & time".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
+    out += "${"Total".padRight(13)}RM${order.total}\n";
     out += "    (^^) HAVE A GOOD DAY (^^)   \n";
     out += "--------------------------------\n\n";
     return out;
@@ -169,12 +169,12 @@ class _PrinterServiceState extends State<PrinterService> {
                               : () async {
                                   if (_device != null && _device!.address != null) {
                                     setState(() {
-                                      tips = 'connecting...';
+                                      tips = 'Connecting...';
                                     });
                                     await bluetoothPrint.connect(_device!);
                                   } else {
                                     setState(() {
-                                      tips = 'please select device';
+                                      tips = 'Please select device';
                                     });
                                   }
                                 },
@@ -193,7 +193,7 @@ class _PrinterServiceState extends State<PrinterService> {
                           onPressed: _connected
                               ? () async {
                                   setState(() {
-                                    tips = 'disconnecting...';
+                                    tips = 'Disconnecting...';
                                   });
                                   await bluetoothPrint.disconnect();
                                 }
@@ -219,34 +219,35 @@ class _PrinterServiceState extends State<PrinterService> {
             const Divider(
               color: Colors.black,
             ),
-          if(_connected)  SizedBox(
-              width: 150,
-              child: ElevatedButton(
-                style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.print_rounded),
-                    SizedBox(width: 8),
-                    Text('Print'),
-                  ],
+            if (_connected)
+              SizedBox(
+                width: 150,
+                child: ElevatedButton(
+                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.print_rounded),
+                      SizedBox(width: 8),
+                      Text('Print'),
+                    ],
+                  ),
+                  onPressed: () async {
+                    Map<String, dynamic> config = {};
+                    config['width'] = 50;
+                    config['height'] = 70;
+                    config['gap'] = 2;
+                    List<LineText> list = [];
+                    list.add(LineText(type: LineText.TYPE_TEXT, content: buildOutput(order: myOrder!)));
+                    await bluetoothPrint.printLabel(config, list);
+                    saveOrder();
+                    clearData();
+                    setState(() {
+                      Navigator.pop(context);
+                    });
+                  },
                 ),
-                onPressed: () async {
-                  Map<String, dynamic> config = {};
-                  config['width'] = 50;
-                  config['height'] = 70;
-                  config['gap'] = 2;
-                  List<LineText> list = [];
-                  list.add(LineText(type: LineText.TYPE_TEXT, content: buildOutput(order: myOrder!)));
-                  await bluetoothPrint.printLabel(config, list);
-                  saveOrder();
-                  clearData();
-                  setState(() {
-                    Navigator.pop(context);
-                  });
-                },
               ),
-            ),
             if (!_connected)
               StreamBuilder<bool>(
                 stream: bluetoothPrint.isScanning,
