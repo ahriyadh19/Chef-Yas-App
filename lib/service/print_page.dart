@@ -87,7 +87,7 @@ class _PrinterServiceState extends State<PrinterService> {
       }
     }
     out += "--------------------------------\n";
-    out += "${"Total".padRight(22)}RM${order.total}\n\n";
+    out += "${"Total".padRight(24)}RM${order.total}\n\n";
     out += "--------------------------------\n";
     out += "            Thank you           \n";
     out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
