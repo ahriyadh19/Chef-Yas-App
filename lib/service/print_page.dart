@@ -83,7 +83,7 @@ class _PrinterServiceState extends State<PrinterService> {
           "${order.itemsQuantity[i].toString().padRight(3)} ${order.items[i].itemName.padRight(19)} ${order.items[i].itemPrice * order.itemsQuantity[i]}\n";
 
       if (order.items[i].itemNote != null && order.items[i].itemNote!.trim().isNotEmpty) {
-        out += "Note: ${order.items[i].itemNote!.trim()}";
+        out += "Note: ${order.items[i].itemNote!.trim()}\n";
       }
     }
     out += "--------------------------------\n";
