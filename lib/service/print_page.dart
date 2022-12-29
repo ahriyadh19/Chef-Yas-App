@@ -80,7 +80,7 @@ class _PrinterServiceState extends State<PrinterService> {
     out += "--------------------------------\n";
     for (int i = 0; i < order.items.length; i++) {
       out +=
-          "${order.itemsQuantity[i].toString().padRight(3)} ${order.items[i].itemName.padRight(19)} ${order.items[i].itemPrice * order.itemsQuantity[i]}\n";
+          "${order.itemsQuantity[i].toString().padRight(3)} ${order.items[i].itemName.padRight(19)} RM${order.items[i].itemPrice * order.itemsQuantity[i]}\n";
 
       if (order.items[i].itemNote != null && order.items[i].itemNote!.trim().isNotEmpty) {
         out += "Note: ${order.items[i].itemNote!.trim()}\n";
