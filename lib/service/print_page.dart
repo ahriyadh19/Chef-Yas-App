@@ -219,7 +219,7 @@ class _PrinterServiceState extends State<PrinterService> {
             const Divider(
               color: Colors.black,
             ),
-            SizedBox(
+          if(_connected)  SizedBox(
               width: 150,
               child: ElevatedButton(
                 style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
