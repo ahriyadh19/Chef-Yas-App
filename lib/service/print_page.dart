@@ -232,15 +232,13 @@ class _PrinterServiceState extends State<PrinterService> {
                   ],
                 ),
                 onPressed: () async {
-                  {
-                    Map<String, dynamic> config = {};
-                    config['width'] = 50;
-                    config['height'] = 70;
-                    config['gap'] = 2;
-                    List<LineText> list = [];
-                    list.add(LineText(type: LineText.TYPE_TEXT, content: buildOutput(order: myOrder!)));
-                    await bluetoothPrint.printLabel(config, list);
-                  }
+                  Map<String, dynamic> config = {};
+                  config['width'] = 50;
+                  config['height'] = 70;
+                  config['gap'] = 2;
+                  List<LineText> list = [];
+                  list.add(LineText(type: LineText.TYPE_TEXT, content: buildOutput(order: myOrder!)));
+                  await bluetoothPrint.printLabel(config, list);
                   saveOrder();
                   clearData();
                   setState(() {
