@@ -6,12 +6,12 @@ import 'package:chef_yas/model/order.dart';
 import 'package:intl/intl.dart';
 
 class PrinterService extends StatefulWidget {
-  final Order? newOrder;
+  final Order newOrder;
   final Function save;
   final Function clearOldData;
   const PrinterService({
     Key? key,
-    this.newOrder,
+    required this.newOrder,
     required this.save,
     required this.clearOldData,
   }) : super(key: key);
@@ -27,23 +27,26 @@ class _PrinterServiceState extends State<PrinterService> {
   String tips = 'No device connect';
   late final Function saveOrder;
   late final Function clearData;
-  Order? myOrder;
+  late final ShowResult result;
+  late final Order myOrder;
+  List<Widget> conn = [];
+  List<Widget> disConn = [];
 
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => initBluetooth());
-
     myOrder = widget.newOrder;
     saveOrder = widget.save;
     clearData = widget.clearOldData;
+    result = ShowResult(o: myOrder);
+    conn = [connText(), div(), result, div(), printBtn()];
+    disConn = [status(), div(), printerFound(), div(), optionBtn(), searchBtn()];
+    WidgetsBinding.instance.addPostFrameCallback((_) => initBluetooth());
   }
 
   Future<void> initBluetooth() async {
     bluetoothPrint.startScan(timeout: const Duration(seconds: 2));
     bool isConnected = await bluetoothPrint.isConnected ?? false;
-
     bluetoothPrint.state.listen((state) {
       switch (state) {
         case BluetoothPrint.CONNECTED:
@@ -70,6 +73,13 @@ class _PrinterServiceState extends State<PrinterService> {
         _connected = true;
       });
     }
+  }
+
+  Padding connText() {
+    return const Padding(
+      padding: EdgeInsets.all(10),
+      child: Center(child: Text('Connected')),
+    );
   }
 
   String buildOutput({required Order order}) {
@@ -99,195 +109,197 @@ class _PrinterServiceState extends State<PrinterService> {
     return out;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Row status() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Text(!_connected ? tips : 'Connected'),
+        ),
+      ],
+    );
+  }
+
+  Divider div() {
+    return const Divider(
+      thickness: 1.2,
+      indent: 80,
+      endIndent: 80,
+      color: Colors.black,
+    );
+  }
+
+  StreamBuilder printerFound() {
+    return StreamBuilder<List<BluetoothDevice>>(
+      stream: bluetoothPrint.scanResults,
+      initialData: const [],
+      builder: (c, snapshot) => Column(
+        children: snapshot.data!
+            .map((d) => ListTile(
+                  title: Text(d.name ?? ''),
+                  subtitle: Text(d.address ?? ''),
+                  onTap: () async {
+                    setState(() {
+                      _device = d;
+                    });
+                  },
+                  trailing: _device != null && _device!.address == d.address
+                      ? const Icon(
+                          Icons.check,
+                          color: Colors.green,
+                        )
+                      : null,
+                ))
+            .toList(),
+      ),
+    );
+  }
+
+  ElevatedButton connectBtn() {
+    return ElevatedButton(
+      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+      onPressed: _connected
+          ? null
+          : () async {
+              if (_device != null && _device!.address != null) {
+                setState(() {
+                  tips = 'Connecting...';
+                });
+                await bluetoothPrint.connect(_device!);
+              } else {
+                setState(() {
+                  tips = 'Please select device';
+                });
+              }
+            },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.bluetooth_connected_rounded),
+          SizedBox(width: 8),
+          Text('Connect'),
+        ],
+      ),
+    );
+  }
+
+  ElevatedButton disConnectBtn() {
+    return ElevatedButton(
+      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+      onPressed: _connected
+          ? () async {
+              setState(() {
+                tips = 'Disconnecting...';
+              });
+              await bluetoothPrint.disconnect();
+            }
+          : null,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.bluetooth_disabled_rounded),
+          SizedBox(width: 8),
+          Text('Disconnect'),
+        ],
+      ),
+    );
+  }
+
+  Container optionBtn() {
     return Container(
-      decoration: const BoxDecoration(borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),
-      height: 800,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                  child: Text(!_connected ? tips : 'Connected'),
-                ),
-              ],
+      padding: const EdgeInsets.fromLTRB(20, 5, 20, 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [connectBtn(), const SizedBox(width: 10), disConnectBtn()],
+      ),
+    );
+  }
+
+  SizedBox printBtn() {
+    return SizedBox(
+      width: 150,
+      child: ElevatedButton(
+        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.print_rounded),
+            SizedBox(width: 8),
+            Text('Print'),
+          ],
+        ),
+        onPressed: () async {
+          setState(() {
+            _connected = true;
+          });
+          Map<String, dynamic> config = {};
+          config['width'] = 50;
+          config['height'] = 70;
+          config['gap'] = 2;
+          List<LineText> list = [];
+          list.add(LineText(type: LineText.TYPE_TEXT, content: buildOutput(order: myOrder)));
+          await bluetoothPrint.printLabel(config, list);
+          saveOrder();
+          clearData();
+          setState(() {
+            Navigator.pop(context);
+          });
+        },
+      ),
+    );
+  }
+
+  StreamBuilder searchBtn() {
+    return StreamBuilder<bool>(
+      stream: bluetoothPrint.isScanning,
+      initialData: false,
+      builder: (c, snapshot) {
+        if (snapshot.data == true) {
+          return ElevatedButton(
+            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.redAccent)),
+            onPressed: () => bluetoothPrint.stopScan(),
+            child: SizedBox(
+              width: 150,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text('Stop'),
+                  SizedBox(width: 8),
+                  Icon(Icons.stop),
+                ],
+              ),
             ),
-            if (!_connected)
-              const Divider(
-                thickness: 1.2,
-                indent: 80,
-                endIndent: 80,
-                color: Colors.black,
-              ),
-            if (!_connected)
-              StreamBuilder<List<BluetoothDevice>>(
-                stream: bluetoothPrint.scanResults,
-                initialData: const [],
-                builder: (c, snapshot) => Column(
-                  children: snapshot.data!
-                      .map((d) => ListTile(
-                            title: Text(d.name ?? ''),
-                            subtitle: Text(d.address ?? ''),
-                            onTap: () async {
-                              setState(() {
-                                _device = d;
-                              });
-                            },
-                            trailing: _device != null && _device!.address == d.address
-                                ? const Icon(
-                                    Icons.check,
-                                    color: Colors.green,
-                                  )
-                                : null,
-                          ))
-                      .toList(),
-                ),
-              ),
-            if (!_connected)
-              const Divider(
-                thickness: 1.2,
-                color: Colors.black,
-                indent: 60,
-                endIndent: 60,
-              ),
-            if (!_connected)
-              Container(
-                padding: const EdgeInsets.fromLTRB(20, 5, 20, 10),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        ElevatedButton(
-                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
-                          onPressed: _connected
-                              ? null
-                              : () async {
-                                  if (_device != null && _device!.address != null) {
-                                    setState(() {
-                                      tips = 'Connecting...';
-                                    });
-                                    await bluetoothPrint.connect(_device!);
-                                  } else {
-                                    setState(() {
-                                      tips = 'Please select device';
-                                    });
-                                  }
-                                },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.bluetooth_connected_rounded),
-                              SizedBox(width: 8),
-                              Text('Connect'),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 10.0),
-                        ElevatedButton(
-                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
-                          onPressed: _connected
-                              ? () async {
-                                  setState(() {
-                                    tips = 'Disconnecting...';
-                                  });
-                                  await bluetoothPrint.disconnect();
-                                }
-                              : null,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.bluetooth_disabled_rounded),
-                              SizedBox(width: 8),
-                              Text('Disconnect'),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+          );
+        } else {
+          return ElevatedButton(
+              style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.greenAccent)),
+              child: SizedBox(
+                width: 150,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text('Search'),
+                    SizedBox(width: 8),
+                    Icon(Icons.bluetooth_searching_rounded),
                   ],
                 ),
               ),
-            const Divider(
-              color: Colors.black,
-            ),
-            ShowResult(o: myOrder!),
-            const Divider(
-              color: Colors.black,
-            ),
-            if (_connected)
-              SizedBox(
-                width: 150,
-                child: ElevatedButton(
-                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.print_rounded),
-                      SizedBox(width: 8),
-                      Text('Print'),
-                    ],
-                  ),
-                  onPressed: () async {
-                    Map<String, dynamic> config = {};
-                    config['width'] = 50;
-                    config['height'] = 70;
-                    config['gap'] = 2;
-                    List<LineText> list = [];
-                    list.add(LineText(type: LineText.TYPE_TEXT, content: buildOutput(order: myOrder!)));
-                    await bluetoothPrint.printLabel(config, list);
-                    saveOrder();
-                    clearData();
-                    setState(() {
-                      Navigator.pop(context);
-                    });
-                  },
-                ),
-              ),
-            if (!_connected)
-              StreamBuilder<bool>(
-                stream: bluetoothPrint.isScanning,
-                initialData: false,
-                builder: (c, snapshot) {
-                  if (snapshot.data == true) {
-                    return ElevatedButton(
-                      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.redAccent)),
-                      onPressed: () => bluetoothPrint.stopScan(),
-                      child: SizedBox(
-                        width: 150,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text('Stop'),
-                            SizedBox(width: 8),
-                            Icon(Icons.stop),
-                          ],
-                        ),
-                      ),
-                    );
-                  } else {
-                    return ElevatedButton(
-                        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.greenAccent)),
-                        child: SizedBox(
-                          width: 150,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Text('Search'),
-                              SizedBox(width: 8),
-                              Icon(Icons.bluetooth_searching_rounded),
-                            ],
-                          ),
-                        ),
-                        onPressed: () => bluetoothPrint.startScan(timeout: const Duration(seconds: 2)));
-                  }
-                },
-              )
-          ],
+              onPressed: () => bluetoothPrint.startScan(timeout: const Duration(seconds: 2)));
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double h = MediaQuery.of(context).size.height;
+    return Container(
+      decoration: const BoxDecoration(borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),
+      height: h / 1.3,
+      child: SingleChildScrollView(
+        child: Column(
+          children: _connected ? conn : disConn,
         ),
       ),
     );
