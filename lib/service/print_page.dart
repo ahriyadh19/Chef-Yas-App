@@ -82,7 +82,7 @@ class _PrinterServiceState extends State<PrinterService> {
     );
   }
 
-  String buildOutput({required Order order}) {
+  String buildOutputOwner({required Order order}) {
     String out = "";
     out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
     out += "${"Order Type".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
@@ -97,15 +97,21 @@ class _PrinterServiceState extends State<PrinterService> {
       }
     }
     out += "--------------------------------\n";
-    out += "${"Total".padRight(24)}RM${order.total}\n\n";
+    out += "${"Total".padRight(24)}RM${order.total}\n";
     out += "--------------------------------\n";
-    out += "            Thank you           \n";
+
+    return out;
+  }
+
+  String buildOutputOwnerCustomer({required Order order}) {
+    String out = 'Chef Yas\n';
     out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
     out += "${"Order Type".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
     out += "${"Date & time".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
     out += "${"Total".padRight(13)}RM${order.total}\n";
     out += "    (^^) HAVE A GOOD DAY (^^)   \n";
     out += "--------------------------------\n\n";
+
     return out;
   }
 
@@ -237,9 +243,12 @@ class _PrinterServiceState extends State<PrinterService> {
           config['width'] = 50;
           config['height'] = 70;
           config['gap'] = 2;
-          List<LineText> list = [];
-          list.add(LineText(type: LineText.TYPE_TEXT, content: buildOutput(order: myOrder)));
-          await bluetoothPrint.printLabel(config, list);
+          List<LineText> owner = [];
+          List<LineText> customer = [];
+          owner.add(LineText(type: LineText.TYPE_TEXT, content: buildOutputOwner(order: myOrder), align: LineText.ALIGN_CENTER));
+          customer.add(LineText(type: LineText.TYPE_TEXT, content: buildOutputOwnerCustomer(order: myOrder), align: LineText.ALIGN_CENTER));
+          await bluetoothPrint.printLabel(config, owner);
+          await bluetoothPrint.printLabel(config, customer);
           saveOrder();
           clearData();
           setState(() {
