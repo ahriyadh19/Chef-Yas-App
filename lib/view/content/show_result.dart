@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:chef_yas/model/order.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -50,10 +49,10 @@ class ShowResult extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: const [
-                SizedBox(width: 30, child: Text('Unit')),
-                SizedBox(width: 90, child: Text('Name')),
-                SizedBox(width: 40, child: Text('Price')),
-                SizedBox(width: 40, child: Text('Total'))
+                SizedBox(width: 45, child: Text('Unit')),
+                SizedBox(width: 150, child: Text('Name')),
+                SizedBox(width: 45, child: Text('Price')),
+                SizedBox(width: 45, child: Text('Total'))
               ],
             ),
             ListView.builder(
@@ -69,10 +68,10 @@ class ShowResult extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            SizedBox(width: 30, child: Text('${o.itemsQuantity[index]}')),
-                            SizedBox(width: 90, child: Text(o.items[index].itemName)),
-                            SizedBox(width: 40, child: Text('${o.items[index].itemPrice}')),
-                            SizedBox(width: 40, child: Text('${o.items[index].itemPrice * o.itemsQuantity[index]}'))
+                            SizedBox(width: 45, child: Text('${o.itemsQuantity[index]}')),
+                            SizedBox(width: 150, child: Text(o.items[index].itemName)),
+                            SizedBox(width: 45, child: Text('${o.items[index].itemPrice}')),
+                            SizedBox(width: 45, child: Text('${o.items[index].itemPrice * o.itemsQuantity[index]}'))
                           ],
                         ),
                         if (o.items[index].itemNote != null && o.items[index].itemNote!.trim().isNotEmpty)

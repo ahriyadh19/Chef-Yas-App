@@ -41,8 +41,11 @@ class _PrinterServiceState extends State<PrinterService> {
     result = ShowResult(o: myOrder);
     conn = [connText(), div(), result, div(), printBtn()];
     disConn = [status(), div(), printerFound(), div(), optionBtn(), searchBtn()];
+  
     WidgetsBinding.instance.addPostFrameCallback((_) => initBluetooth());
   }
+
+
 
   Future<void> initBluetooth() async {
     bluetoothPrint.startScan(timeout: const Duration(seconds: 2));
