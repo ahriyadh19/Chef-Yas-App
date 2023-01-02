@@ -9,12 +9,8 @@ class PrinterService extends StatefulWidget {
   final Order newOrder;
   final Function save;
   final Function clearOldData;
-  const PrinterService({
-    Key? key,
-    required this.newOrder,
-    required this.save,
-    required this.clearOldData,
-  }) : super(key: key);
+  final Function dialog;
+  const PrinterService({Key? key, required this.newOrder, required this.save, required this.clearOldData, required this.dialog}) : super(key: key);
 
   @override
   State<PrinterService> createState() => _PrinterServiceState();
@@ -27,8 +23,10 @@ class _PrinterServiceState extends State<PrinterService> {
   String tips = 'No device connect';
   late final Function saveOrder;
   late final Function clearData;
+  late final Function dialog;
   late final ShowResult result;
   late final Order myOrder;
+
   List<Widget> conn = [];
   List<Widget> disConn = [];
 
@@ -38,6 +36,7 @@ class _PrinterServiceState extends State<PrinterService> {
     myOrder = widget.newOrder;
     saveOrder = widget.save;
     clearData = widget.clearOldData;
+    dialog = widget.dialog;
     result = ShowResult(o: myOrder);
     conn = [connText(), div(), result, div(), printBtn()];
     disConn = [status(), div(), printerFound(), div(), optionBtn(), searchBtn()];
@@ -240,14 +239,12 @@ class _PrinterServiceState extends State<PrinterService> {
           ],
         ),
         onPressed: () async {
-          setState(() {
-            _connected = true;
-          });
+          setState(() {});
           Map<String, dynamic> config = {};
+          List<LineText> bill = [];
           config['width'] = 50;
           config['height'] = 70;
           config['gap'] = 2;
-          List<LineText> bill = [];
           bill.add(LineText(type: LineText.TYPE_TEXT, content: printTitle(order: myOrder), align: LineText.ALIGN_CENTER));
           bill.add(LineText(type: LineText.TYPE_TEXT, content: printInfo(order: myOrder), align: LineText.ALIGN_LEFT));
           bill.add(LineText(type: LineText.TYPE_TEXT, content: printForCustomer(order: myOrder), align: LineText.ALIGN_CENTER));
@@ -255,8 +252,10 @@ class _PrinterServiceState extends State<PrinterService> {
           saveOrder();
           clearData();
           setState(() {
+            _connected = true;
             Navigator.pop(context);
           });
+          dialog();
         },
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:chef_yas/model/item.dart';
 import 'package:chef_yas/model/order.dart';
 import 'package:chef_yas/service/print_page.dart';
@@ -7,6 +8,7 @@ import 'package:chef_yas/view/content/show_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toggle_list/toggle_list.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 class MainPage extends StatefulWidget {
@@ -243,7 +245,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  sweet() {
+  List<Widget> sweet() {
     List<Widget> sweet = [];
 
     sweet.add(menu(index: 10, i: myItems.last));
@@ -259,28 +261,18 @@ class _MainPageState extends State<MainPage> {
       ),
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(12),
-      child: Column(children: [
-        Text(
-            op == 0
-                ? 'Chicken Shawarma'.toUpperCase()
-                : op == 1
-                    ? 'Beef Shawarma'.toUpperCase()
-                    : 'Dessert ',
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        SingleChildScrollView(
-          controller: ScrollController(),
-          child: Column(
-            children: op == 0
-                ? buildChicken()
-                : op == 1
-                    ? buildBeef()
-                    : sweet(),
-          ),
-        )
-      ]),
+      child: SingleChildScrollView(
+        controller: ScrollController(),
+        child: Column(
+          children: op == 0
+              ? buildChicken()
+              : op == 1
+                  ? buildBeef()
+                  : sweet(),
+        ),
+      ),
     );
   }
-
 
   Order makeOrder() {
     Order processOrder;
@@ -296,6 +288,23 @@ class _MainPageState extends State<MainPage> {
     processOrder.total = t;
     totalRes = t;
     return processOrder;
+  }
+
+  AwesomeDialog myDialog() {
+    return AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.success,
+      body: const Center(
+        child: Text(
+          'Your order has submitted successfully',
+          style: TextStyle(fontStyle: FontStyle.italic),
+        ),
+      ),
+      title: 'This is Ignored',
+      desc: 'This is also Ignored',
+      btnOkOnPress: () {},
+    )..show();
   }
 
   ElevatedButton orderBtn() {
@@ -323,6 +332,52 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  ToggleList trigger() {
+    return ToggleList(
+      scrollPhysics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      trailing: const Icon(Icons.arrow_downward_rounded),
+      children: [
+        ToggleListItem(
+          content: section(op: 0),
+          title: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                color: Colors.black.withOpacity(0.2),
+              ),
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
+              child: Center(child: Text('Chicken Shawarma'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
+        ),
+        ToggleListItem(
+          content: section(op: 1),
+          title: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                color: Colors.black.withOpacity(0.2),
+              ),
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
+              child: Center(child: Text('Beef Shawarma'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
+        ),
+        ToggleListItem(
+          content: section(op: 2),
+          title: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                color: Colors.black.withOpacity(0.2),
+              ),
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
+              child: Center(child: Text('Dessert'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
+        ),
+      ],
+    );
+  }
+
   SingleChildScrollView myBody() {
     return SingleChildScrollView(
         controller: ScrollController(),
@@ -330,9 +385,7 @@ class _MainPageState extends State<MainPage> {
           const MyIcon(),
           welcoming(),
           option(),
-          section(op: 0),
-          section(op: 1),
-          section(op: 2),
+          trigger(),
           if (activeSubmit)
             Column(
               children: [
@@ -355,7 +408,7 @@ class _MainPageState extends State<MainPage> {
       ),
       builder: (_) {
         return BackGround(
-          myBody: PrinterService(newOrder: finalOrder ?? makeOrder(), clearOldData: setDefault, save: saveOrder),
+          myBody: PrinterService(newOrder: finalOrder ?? makeOrder(), clearOldData: setDefault, save: saveOrder, dialog: myDialog),
           isSub: true,
         );
       },

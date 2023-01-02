@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class BackGround extends StatelessWidget {
@@ -17,8 +16,8 @@ class BackGround extends StatelessWidget {
     return Container(
       height: h,
       width: w,
-      decoration:  BoxDecoration(
-        borderRadius: isSub? const BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25)): null,
+      decoration: BoxDecoration(
+        borderRadius: isSub ? const BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25)) : null,
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -27,6 +26,8 @@ class BackGround extends StatelessWidget {
             Color.fromARGB(180, 170, 101, 0),
             Color.fromARGB(180, 255, 152, 0),
             Color.fromARGB(180, 255, 192, 6),
+            Color.fromARGB(234, 255, 193, 3),
+            Color.fromARGB(255, 255, 193, 0)
           ],
         ),
       ),
