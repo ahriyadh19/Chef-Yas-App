@@ -41,11 +41,9 @@ class _PrinterServiceState extends State<PrinterService> {
     result = ShowResult(o: myOrder);
     conn = [connText(), div(), result, div(), printBtn()];
     disConn = [status(), div(), printerFound(), div(), optionBtn(), searchBtn()];
-  
+
     WidgetsBinding.instance.addPostFrameCallback((_) => initBluetooth());
   }
-
-
 
   Future<void> initBluetooth() async {
     bluetoothPrint.startScan(timeout: const Duration(seconds: 2));
@@ -85,16 +83,20 @@ class _PrinterServiceState extends State<PrinterService> {
     );
   }
 
-  String buildOutputOwner({required Order order}) {
+  String printTitle({required Order order}) {
     String out = "";
     out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
     out += "${"Order Type".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
     out += "${"Date & time".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
     out += "--------------------------------\n";
+    return out;
+  }
+
+  String printInfo({required Order order}) {
+    String out = "";
     for (int i = 0; i < order.items.length; i++) {
       out +=
           "${order.itemsQuantity[i].toString().padRight(3)} ${order.items[i].itemName.padRight(19)} RM${order.items[i].itemPrice * order.itemsQuantity[i]}\n";
-
       if (order.items[i].itemNote != null && order.items[i].itemNote!.trim().isNotEmpty) {
         out += "Note: ${order.items[i].itemNote!.trim()}\n";
       }
@@ -106,7 +108,7 @@ class _PrinterServiceState extends State<PrinterService> {
     return out;
   }
 
-  String buildOutputOwnerCustomer({required Order order}) {
+  String printForCustomer({required Order order}) {
     String out = 'Chef Yas\n';
     out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
     out += "${"Order Type".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
@@ -114,7 +116,6 @@ class _PrinterServiceState extends State<PrinterService> {
     out += "${"Total".padRight(13)}RM${order.total}\n";
     out += "    (^^) HAVE A GOOD DAY (^^)   \n";
     out += "--------------------------------\n\n";
-
     return out;
   }
 
@@ -246,12 +247,11 @@ class _PrinterServiceState extends State<PrinterService> {
           config['width'] = 50;
           config['height'] = 70;
           config['gap'] = 2;
-          List<LineText> owner = [];
-          List<LineText> customer = [];
-          owner.add(LineText(type: LineText.TYPE_TEXT, content: buildOutputOwner(order: myOrder), align: LineText.ALIGN_CENTER));
-          customer.add(LineText(type: LineText.TYPE_TEXT, content: buildOutputOwnerCustomer(order: myOrder), align: LineText.ALIGN_CENTER));
-          await bluetoothPrint.printLabel(config, owner);
-          await bluetoothPrint.printLabel(config, customer);
+          List<LineText> bill = [];
+          bill.add(LineText(type: LineText.TYPE_TEXT, content: printTitle(order: myOrder), align: LineText.ALIGN_CENTER));
+          bill.add(LineText(type: LineText.TYPE_TEXT, content: printInfo(order: myOrder), align: LineText.ALIGN_LEFT));
+          bill.add(LineText(type: LineText.TYPE_TEXT, content: printForCustomer(order: myOrder), align: LineText.ALIGN_CENTER));
+          await bluetoothPrint.printLabel(config, bill);
           saveOrder();
           clearData();
           setState(() {
