@@ -1,5 +1,6 @@
 import 'package:bluetooth_print/bluetooth_print.dart';
 import 'package:bluetooth_print/bluetooth_print_model.dart';
+import 'package:chef_yas/view/content/background.dart';
 import 'package:chef_yas/view/content/show_result.dart';
 import 'package:flutter/material.dart';
 import 'package:chef_yas/model/order.dart';
@@ -19,6 +20,9 @@ class PrinterService extends StatefulWidget {
 class _PrinterServiceState extends State<PrinterService> {
   BluetoothPrint bluetoothPrint = BluetoothPrint.instance;
   bool _connected = false;
+  bool _isPrinted = false;
+  bool _isCusPrinted = false;
+  bool _isResPrinted = false;
   BluetoothDevice? _device;
   String tips = 'No device connect';
   late final Function saveOrder;
@@ -26,9 +30,6 @@ class _PrinterServiceState extends State<PrinterService> {
   late final Function dialog;
   late final ShowResult result;
   late final Order myOrder;
-
-  List<Widget> conn = [];
-  List<Widget> disConn = [];
 
   @override
   void initState() {
@@ -38,10 +39,23 @@ class _PrinterServiceState extends State<PrinterService> {
     clearData = widget.clearOldData;
     dialog = widget.dialog;
     result = ShowResult(o: myOrder);
-    conn = [connText(), div(), result, div(), printBtn()];
-    disConn = [status(), div(), printerFound(), div(), optionBtn(), searchBtn()];
-
     WidgetsBinding.instance.addPostFrameCallback((_) => initBluetooth());
+  }
+
+  Row titles() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.print_rounded, size: 30),
+        const SizedBox(
+          width: 15,
+        ),
+        Text('Print'.toUpperCase(), style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+        const SizedBox(
+          height: 20,
+        ),
+      ],
+    );
   }
 
   Future<void> initBluetooth() async {
@@ -76,14 +90,28 @@ class _PrinterServiceState extends State<PrinterService> {
   }
 
   Padding connText() {
-    return const Padding(
-      padding: EdgeInsets.all(10),
-      child: Center(child: Text('Connected')),
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Printer is Connected'),
+          const SizedBox(width: 10),
+          Container(
+            height: 20,
+            width: 20,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              color: Colors.green,
+            ),
+          )
+        ],
+      ),
     );
   }
 
   String printTitle({required Order order}) {
-    String out = "";
+    String out = "Restaurant Copy\n\n";
     out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
     out += "${"Order Type".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
     out += "${"Date & time".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
@@ -108,7 +136,8 @@ class _PrinterServiceState extends State<PrinterService> {
   }
 
   String printForCustomer({required Order order}) {
-    String out = 'Chef Yas\n';
+    String out = 'Chef Yas\n\n';
+    out += 'Customer Copy\n';
     out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
     out += "${"Order Type".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
     out += "${"Date & time".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
@@ -124,7 +153,7 @@ class _PrinterServiceState extends State<PrinterService> {
       children: [
         Padding(
           padding: const EdgeInsets.all(10),
-          child: Text(!_connected ? tips : 'Connected'),
+          child: _connected ? connText() : Text(!_connected ? tips : ''),
         ),
       ],
     );
@@ -139,7 +168,7 @@ class _PrinterServiceState extends State<PrinterService> {
     );
   }
 
-  StreamBuilder printerFound() {
+  StreamBuilder printerFound({required Function set}) {
     return StreamBuilder<List<BluetoothDevice>>(
       stream: bluetoothPrint.scanResults,
       initialData: const [],
@@ -149,7 +178,7 @@ class _PrinterServiceState extends State<PrinterService> {
                   title: Text(d.name ?? ''),
                   subtitle: Text(d.address ?? ''),
                   onTap: () async {
-                    setState(() {
+                    set(() {
                       _device = d;
                     });
                   },
@@ -165,19 +194,19 @@ class _PrinterServiceState extends State<PrinterService> {
     );
   }
 
-  ElevatedButton connectBtn() {
+  ElevatedButton connectBtn({required Function set}) {
     return ElevatedButton(
       style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
       onPressed: _connected
           ? null
           : () async {
               if (_device != null && _device!.address != null) {
-                setState(() {
+                set(() {
                   tips = 'Connecting...';
                 });
                 await bluetoothPrint.connect(_device!);
               } else {
-                setState(() {
+                set(() {
                   tips = 'Please select device';
                 });
               }
@@ -193,12 +222,12 @@ class _PrinterServiceState extends State<PrinterService> {
     );
   }
 
-  ElevatedButton disConnectBtn() {
+  ElevatedButton disConnectBtn({required Function set}) {
     return ElevatedButton(
       style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
       onPressed: _connected
           ? () async {
-              setState(() {
+              set(() {
                 tips = 'Disconnecting...';
               });
               await bluetoothPrint.disconnect();
@@ -215,48 +244,83 @@ class _PrinterServiceState extends State<PrinterService> {
     );
   }
 
-  Container optionBtn() {
+  Container optionBtn({required Function set}) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 5, 20, 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [connectBtn(), const SizedBox(width: 10), disConnectBtn()],
+        children: [connectBtn(set: set), const SizedBox(width: 10), disConnectBtn(set: set)],
       ),
     );
   }
 
-  SizedBox printBtn() {
+  SizedBox printBtnRes({required Function set}) {
     return SizedBox(
-      width: 150,
+      width: 200,
       child: ElevatedButton(
         style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+        onPressed: _isResPrinted
+            ? null
+            : () async {
+                Map<String, dynamic> config = {};
+                List<LineText> bill = [];
+                config['width'] = 50;
+                config['height'] = 70;
+                config['gap'] = 2;
+                bill.add(LineText(type: LineText.TYPE_TEXT, content: printTitle(order: myOrder), align: LineText.ALIGN_CENTER));
+                bill.add(LineText(type: LineText.TYPE_TEXT, content: printInfo(order: myOrder), align: LineText.ALIGN_LEFT));
+                await bluetoothPrint.printLabel(config, bill);
+                !_isPrinted ? {saveOrder(), clearData()} : null;
+                set(() {
+                  _isPrinted = true;
+                  _connected = true;
+                  _isResPrinted = true;
+                });
+                dialog();
+              },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Icon(Icons.print_rounded),
+            Icon(Icons.restaurant_menu_rounded),
             SizedBox(width: 8),
-            Text('Print'),
+            Text('Restaurant Copy'),
           ],
         ),
-        onPressed: () async {
-          setState(() {});
-          Map<String, dynamic> config = {};
-          List<LineText> bill = [];
-          config['width'] = 50;
-          config['height'] = 70;
-          config['gap'] = 2;
-          bill.add(LineText(type: LineText.TYPE_TEXT, content: printTitle(order: myOrder), align: LineText.ALIGN_CENTER));
-          bill.add(LineText(type: LineText.TYPE_TEXT, content: printInfo(order: myOrder), align: LineText.ALIGN_LEFT));
-          bill.add(LineText(type: LineText.TYPE_TEXT, content: printForCustomer(order: myOrder), align: LineText.ALIGN_CENTER));
-          await bluetoothPrint.printLabel(config, bill);
-          saveOrder();
-          clearData();
-          setState(() {
-            _connected = true;
-            Navigator.pop(context);
-          });
-          dialog();
-        },
+      ),
+    );
+  }
+
+  SizedBox printBtnCus({required Function set}) {
+    return SizedBox(
+      width: 200,
+      child: ElevatedButton(
+        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+        onPressed: _isCusPrinted
+            ? null
+            : () async {
+                Map<String, dynamic> config = {};
+                List<LineText> bill = [];
+                config['width'] = 50;
+                config['height'] = 70;
+                config['gap'] = 2;
+                bill.add(LineText(type: LineText.TYPE_TEXT, content: printForCustomer(order: myOrder), align: LineText.ALIGN_CENTER));
+                await bluetoothPrint.printLabel(config, bill);
+                !_isPrinted ? {saveOrder(), clearData()} : null;
+                set(() {
+                  _isPrinted = true;
+                  _connected = true;
+                  _isCusPrinted = true;
+                });
+                dialog();
+              },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.person),
+            SizedBox(width: 8),
+            Text('Customer Copy'),
+          ],
+        ),
       ),
     );
   }
@@ -302,17 +366,48 @@ class _PrinterServiceState extends State<PrinterService> {
     );
   }
 
+  SizedBox backBtn() {
+    return SizedBox(
+      width: 200,
+      child: ElevatedButton(
+        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+          });
+        },
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.center, children: const [Icon(Icons.arrow_back_ios_new_rounded), SizedBox(width: 15), Text('Back')]),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    double h = MediaQuery.of(context).size.height;
-    return Container(
-      decoration: const BoxDecoration(borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25))),
-      height: h / 1.3,
-      child: SingleChildScrollView(
-        child: Column(
-          children: _connected ? conn : disConn,
+    return BackGround(
+      myBody: Center(
+        child: SingleChildScrollView(
+          child: StatefulBuilder(
+            builder: (context, mySetState) {
+              return Column(
+                children: _connected
+                    ? [
+                        connText(),
+                        div(),
+                        result,
+                        div(),
+                        titles(),
+                        printBtnRes(set: mySetState),
+                        printBtnCus(set: mySetState),
+                        if (_isCusPrinted && _isResPrinted) backBtn()
+                      ]
+                    : [status(), div(), printerFound(set: mySetState), div(), optionBtn(set: mySetState), searchBtn()],
+              );
+            },
+          ),
         ),
       ),
+      isSub: true,
     );
   }
 }

@@ -297,7 +297,7 @@ class _MainPageState extends State<MainPage> {
       dialogType: DialogType.success,
       body: const Center(
         child: Text(
-          'Your order has submitted successfully',
+          'Order has Printed successfully',
           style: TextStyle(fontStyle: FontStyle.italic),
         ),
       ),
@@ -403,14 +403,14 @@ class _MainPageState extends State<MainPage> {
       enableDrag: true,
       context: context,
       isDismissible: true,
+      elevation: 50,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
       ),
       builder: (_) {
-        return BackGround(
-          myBody: PrinterService(newOrder: finalOrder ?? makeOrder(), clearOldData: setDefault, save: saveOrder, dialog: myDialog),
-          isSub: true,
-        );
+        return StatefulBuilder(
+            builder: (context, setState) =>
+                PrinterService(newOrder: finalOrder ?? makeOrder(), clearOldData: setDefault, save: saveOrder, dialog: myDialog));
       },
     );
   }
