@@ -397,8 +397,13 @@ class _PrinterServiceState extends State<PrinterService> {
                         result,
                         div(),
                         titles(),
-                        printBtnRes(set: mySetState),
-                        printBtnCus(set: mySetState),
+                        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          printBtnRes(set: mySetState),
+                          const SizedBox(
+                            width: 15,
+                          ),
+                          printBtnCus(set: mySetState)
+                        ]),
                         if (_isCusPrinted && _isResPrinted) backBtn()
                       ]
                     : [status(), div(), printerFound(set: mySetState), div(), optionBtn(set: mySetState), searchBtn()],
