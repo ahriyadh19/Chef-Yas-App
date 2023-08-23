@@ -37,7 +37,7 @@ class _MainPageState extends State<MainPage> {
     Item(itemID: 10, itemName: 'Kunafa', itemPrice: 10, itemNameDisplay: 'Kunafa'),
     Item(itemID: 11, itemName: '7up', itemPrice: 3, itemNameDisplay: '7up'),
     Item(itemID: 12, itemName: 'Pepsi', itemPrice: 3, itemNameDisplay: 'Pepsi'),
-    Item(itemID: 13, itemName: 'Water', itemPrice: 2.5, itemNameDisplay: 'Water'),
+    Item(itemID: 13, itemName: 'Water', itemPrice: 2, itemNameDisplay: 'Water'),
   ];
 
   int itemN = 5;
