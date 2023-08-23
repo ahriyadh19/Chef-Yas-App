@@ -38,7 +38,7 @@ class _PrinterServiceState extends State<PrinterService> {
     saveOrder = widget.save;
     clearData = widget.clearOldData;
     dialog = widget.dialog;
-    result = ShowResult(o: myOrder);
+    result = ShowResult(currentOrder: myOrder);
     WidgetsBinding.instance.addPostFrameCallback((_) => initBluetooth());
   }
 
@@ -112,10 +112,11 @@ class _PrinterServiceState extends State<PrinterService> {
 
   String printTitle({required Order order}) {
     String outTitle = "Restaurant Copy\n\n";
-    outTitle += "${"Order Number: ".padRight(13)}${order.orderNumber}\n";
-    outTitle += "${"Customer Name: ".padRight(13)}${order.orderName != null && order.orderName != '' ? order.orderName : ' -'}\n";
-    outTitle += "${"Order Type: ".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
-    outTitle += "${"Date & time: ".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
+    outTitle += "Order Number: ${order.orderNumber}\n";
+    outTitle += "Cust.Nm: ${order.orderName != null && order.orderName != '' ? order.orderName : '-'}\n";
+    outTitle += "Type: ${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
+    outTitle += "Time: ${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
+
     outTitle += "--------------------------------\n";
     return outTitle;
   }
@@ -139,11 +140,11 @@ class _PrinterServiceState extends State<PrinterService> {
   String printForCustomer({required Order order}) {
     String outCustomer = 'Chef Yas\n\n';
     outCustomer += 'Customer Copy\n';
-    outCustomer += "${"Order Number: ".padRight(13)}${order.orderNumber}\n";
-    outCustomer += "${"Customer Name: ".padRight(13)}${order.orderName != null && order.orderName != '' ? order.orderName : '-'}\n";
-    outCustomer += "${"Order Type: ".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
-    outCustomer += "${"Date & time: ".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
-    outCustomer += "${"Total: ".padRight(13)}RM${order.total}\n";
+    outCustomer += "Order Number: ${order.orderNumber.toString()}\n";
+    outCustomer += "Cust.Nm: ${order.orderName != null && order.orderName != '' ? order.orderName : '-'}\n";
+    outCustomer += "Type: ${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
+    outCustomer += "Time: ${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
+    outCustomer += "Total: RM${order.total}\n";
     outCustomer += "    (^^) HAVE A GOOD DAY (^^)   \n";
     outCustomer += "--------------------------------\n\n";
     return outCustomer;
@@ -256,73 +257,67 @@ class _PrinterServiceState extends State<PrinterService> {
     );
   }
 
-  SizedBox printBtnRes({required Function set}) {
-    return SizedBox(
-      width: 150,
-      child: ElevatedButton(
-        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
-        onPressed: _isResPrinted
-            ? null
-            : () async {
-                Map<String, dynamic> config = {};
-                List<LineText> bill = [];
-                config['width'] = 50;
-                config['height'] = 70;
-                config['gap'] = 2;
-                bill.add(LineText(type: LineText.TYPE_TEXT, content: printTitle(order: myOrder), align: LineText.ALIGN_CENTER));
-                bill.add(LineText(type: LineText.TYPE_TEXT, content: printInfo(order: myOrder), align: LineText.ALIGN_LEFT));
-                await bluetoothPrint.printLabel(config, bill);
-                !_isPrinted ? {saveOrder(), clearData()} : null;
-                set(() {
-                  _isPrinted = true;
-                  _connected = true;
-                  _isResPrinted = true;
-                });
-                dialog();
-              },
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.restaurant_menu_rounded),
-            SizedBox(width: 8),
-            Text('Restaurant Copy'),
-          ],
-        ),
+  printBtnRes({required Function set}) {
+    return ElevatedButton(
+      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+      onPressed: _isResPrinted
+          ? null
+          : () async {
+              Map<String, dynamic> config = {};
+              List<LineText> bill = [];
+              config['width'] = 50;
+              config['height'] = 70;
+              config['gap'] = 2;
+              bill.add(LineText(type: LineText.TYPE_TEXT, content: printTitle(order: myOrder), align: LineText.ALIGN_LEFT));
+              bill.add(LineText(type: LineText.TYPE_TEXT, content: printInfo(order: myOrder), align: LineText.ALIGN_LEFT));
+              await bluetoothPrint.printLabel(config, bill);
+              !_isPrinted ? {saveOrder(), clearData()} : null;
+              set(() {
+                _isPrinted = true;
+                _connected = true;
+                _isResPrinted = true;
+              });
+              dialog();
+            },
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.restaurant_menu_rounded),
+          SizedBox(width: 8),
+          Text('Restaurant Copy'),
+        ],
       ),
     );
   }
 
-  SizedBox printBtnCus({required Function set}) {
-    return SizedBox(
-      width: 150,
-      child: ElevatedButton(
-        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
-        onPressed: _isCusPrinted
-            ? null
-            : () async {
-                Map<String, dynamic> config = {};
-                List<LineText> bill = [];
-                config['width'] = 50;
-                config['height'] = 70;
-                config['gap'] = 2;
-                bill.add(LineText(type: LineText.TYPE_TEXT, content: printForCustomer(order: myOrder), align: LineText.ALIGN_CENTER));
-                await bluetoothPrint.printLabel(config, bill);
-                !_isPrinted ? {saveOrder(), clearData()} : null;
-                set(() {
-                  _isPrinted = true;
-                  _connected = true;
-                  _isCusPrinted = true;
-                });
-                dialog();
-              },
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.person),
-            SizedBox(width: 8),
-            Text('Customer Copy'),
-          ],
-        ),
+  printBtnCus({required Function set}) {
+    return ElevatedButton(
+      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
+      onPressed: _isCusPrinted
+          ? null
+          : () async {
+              Map<String, dynamic> config = {};
+              List<LineText> bill = [];
+              config['width'] = 50;
+              config['height'] = 70;
+              config['gap'] = 2;
+              bill.add(LineText(type: LineText.TYPE_TEXT, content: printForCustomer(order: myOrder), align: LineText.ALIGN_CENTER));
+              await bluetoothPrint.printLabel(config, bill);
+              !_isPrinted ? {saveOrder(), clearData()} : null;
+              set(() {
+                _isPrinted = true;
+                _connected = true;
+                _isCusPrinted = true;
+              });
+              dialog();
+            },
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.person),
+          SizedBox(width: 8),
+          Text('Customer Copy'),
+        ],
       ),
     );
   }

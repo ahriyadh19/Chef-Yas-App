@@ -6,7 +6,7 @@ class Item {
   String itemName;
   String itemNameDisplay;
   String? itemNote;
-  int itemPrice;
+  double itemPrice;
   Item({
     required this.itemID,
     required this.itemName,
@@ -20,7 +20,7 @@ class Item {
     String? itemName,
     String? itemNameDisplay,
     String? itemNote,
-    int? itemPrice,
+    double? itemPrice,
   }) {
     return Item(
       itemID: itemID ?? this.itemID,
@@ -47,7 +47,7 @@ class Item {
       itemName: map['itemName'] as String,
       itemNameDisplay: map['itemNameDisplay'] as String,
       itemNote: map['itemNote'] != null ? map['itemNote'] as String : null,
-      itemPrice: map['itemPrice'] as int,
+      itemPrice: map['itemPrice'] as double,
     );
   }
 

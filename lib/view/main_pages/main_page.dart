@@ -37,14 +37,14 @@ class _MainPageState extends State<MainPage> {
     Item(itemID: 10, itemName: 'Kunafa', itemPrice: 10, itemNameDisplay: 'Kunafa'),
     Item(itemID: 11, itemName: '7up', itemPrice: 3, itemNameDisplay: '7up'),
     Item(itemID: 12, itemName: 'Pepsi', itemPrice: 3, itemNameDisplay: 'Pepsi'),
-    Item(itemID: 13, itemName: 'Water', itemPrice: 2, itemNameDisplay: 'Water'),
+    Item(itemID: 13, itemName: 'Water', itemPrice: 2.5, itemNameDisplay: 'Water'),
   ];
 
   int itemN = 5;
   int lastOrder = 0;
   int orderType = 0;
   int savedDate = 0;
-  int totalRes = 0;
+  double totalRes = 0;
   TextEditingController orderName = TextEditingController();
   static const int menuItemsNumber = 14;
   List<bool> activeNote = List.generate(menuItemsNumber, ((index) => false));
@@ -161,28 +161,31 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  String formatPrice(double price) {
+    String priceString = price.toString();
+    if (priceString.endsWith('.0') || priceString.endsWith('.00') || priceString.endsWith('.000')) {
+      return 'RM ${price.toInt()}';
+    } else {
+      return 'RM $price';
+    }
+  }
+
   Column menu({required Item i, required int index}) {
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(
-              width: 140,
+            Expanded(
               child: Text(
                 i.itemNameDisplay,
                 textAlign: TextAlign.left,
               ),
             ),
-            SizedBox(
-              width: 50,
-              child: Text(
-                'RM${i.itemPrice}',
-                textAlign: TextAlign.left,
-              ),
+            Text(
+              formatPrice(i.itemPrice),
             ),
-            SizedBox(
-              width: 105,
+            Expanded(
               child: SpinBox(
                 value: orderQuantity[index],
                 min: 0,
@@ -210,7 +213,6 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
             IconButton(
-              iconSize: 20,
               onPressed: () {
                 setState(() {
                   activeNote[index] = !activeNote[index];
@@ -290,18 +292,18 @@ class _MainPageState extends State<MainPage> {
 
   Order makeOrder() {
     Order processOrder;
-    int t = 0;
-
-    processOrder = Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: t, itemsQuantity: []);
+    double totalCurrentOrder = 0;
+    processOrder =
+        Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: totalCurrentOrder, itemsQuantity: []);
     for (var i = 0; i < orderQuantity.length; i++) {
       if (orderQuantity[i] != 0) {
         processOrder.items.add(myItems[i]);
         processOrder.itemsQuantity.add(orderQuantity[i].toInt());
-        t += myItems[i].itemPrice * orderQuantity[i].toInt();
+        totalCurrentOrder += myItems[i].itemPrice * orderQuantity[i].toInt();
       }
     }
-    processOrder.total = t;
-    totalRes = t;
+    processOrder.total = totalCurrentOrder;
+    totalRes = totalCurrentOrder;
     processOrder.orderName = orderName.text;
     return processOrder;
   }
@@ -418,10 +420,8 @@ class _MainPageState extends State<MainPage> {
         if (activeSubmit)
           Column(
             children: [
-              ShowResult(o: makeOrder()),
-              const SizedBox(
-                height: 60,
-              ),
+              ShowResult(currentOrder: makeOrder()),
+              orderBtn(),
             ],
           ),
       ]),
@@ -468,10 +468,10 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
+        onWillPop: () async => false,
+        child: Scaffold(
           body: BackGround(myBody: myBody(), isSub: false),
-          floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: orderBtn()) : null),
-    );
+          // floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: orderBtn()) : null),
+        ));
   }
 }

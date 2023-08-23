@@ -3,11 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ShowResult extends StatelessWidget {
-  final Order o;
+  final Order currentOrder;
   const ShowResult({
     Key? key,
-    required this.o,
+    required this.currentOrder,
   }) : super(key: key);
+
+  String formatPrice(double price) {
+    String priceString = price.toString();
+    if (priceString.endsWith('.0') || priceString.endsWith('.00') || priceString.endsWith('.000')) {
+      return '${price.toInt()}';
+    } else {
+      return '$price';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +31,15 @@ class ShowResult extends StatelessWidget {
       child: SingleChildScrollView(
         controller: ScrollController(),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 const Column(
                   mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Customer Name'),
+                    Text('Cust.Nm'),
                     Text('Number'),
                     Text('Type'),
                     Text('Date & Time'),
@@ -38,11 +47,12 @@ class ShowResult extends StatelessWidget {
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(o.orderName != null && o.orderName != '' ? o.orderName! : '-'),
-                    Text('${o.orderNumber}'),
-                    Text(o.orderType == 0 ? 'Dine-in' : 'Takeaway'),
-                    Text(DateFormat.MMMEd().add_jm().format(o.orderTime).split(',').join()),
+                    Text(currentOrder.orderName != null && currentOrder.orderName != '' ? currentOrder.orderName! : '-'),
+                    Text('${currentOrder.orderNumber}'),
+                    Text(currentOrder.orderType == 0 ? 'Dine-in' : 'Takeaway'),
+                    Text(DateFormat.MMMEd().add_jm().format(currentOrder.orderTime).split(',').join()),
                   ],
                 ),
               ],
@@ -57,11 +67,12 @@ class ShowResult extends StatelessWidget {
                 SizedBox(width: 45, child: Text('Total'))
               ],
             ),
+            if (currentOrder.items.length > 1) Divider(endIndent: w / 6, indent: w / 6, thickness: 2),
             ListView.builder(
               padding: const EdgeInsets.all(5),
               shrinkWrap: true,
               controller: ScrollController(),
-              itemCount: o.items.length,
+              itemCount: currentOrder.items.length,
               itemBuilder: (_, int index) {
                 return Column(
                   children: [
@@ -70,16 +81,16 @@ class ShowResult extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            SizedBox(width: 45, child: Text('${o.itemsQuantity[index]}')),
-                            SizedBox(width: 150, child: Text(o.items[index].itemName)),
-                            SizedBox(width: 45, child: Text('${o.items[index].itemPrice}')),
-                            SizedBox(width: 45, child: Text('${o.items[index].itemPrice * o.itemsQuantity[index]}'))
+                            SizedBox(width: 45, child: Text('${currentOrder.itemsQuantity[index]}')),
+                            SizedBox(width: 150, child: Text(currentOrder.items[index].itemName)),
+                            SizedBox(width: 45, child: Text(formatPrice(currentOrder.items[index].itemPrice))),
+                            SizedBox(width: 45, child: Text(formatPrice(currentOrder.items[index].itemPrice * currentOrder.itemsQuantity[index])))
                           ],
                         ),
-                        if (o.items[index].itemNote != null && o.items[index].itemNote!.trim().isNotEmpty)
+                        if (currentOrder.items[index].itemNote != null && currentOrder.items[index].itemNote!.trim().isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.all(5),
-                            child: Align(alignment: Alignment.centerLeft, child: Text('Note: ${o.items[index].itemNote!}')),
+                            child: Align(alignment: Alignment.centerLeft, child: Text('Note: ${currentOrder.items[index].itemNote!}')),
                           )
                       ],
                     )
@@ -90,7 +101,7 @@ class ShowResult extends StatelessWidget {
             Divider(endIndent: w / 6, indent: w / 6, thickness: 2),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [const Text('Total'), Text('RM${o.total}')],
+              children: [const Text('Total'), Text('RM${formatPrice(currentOrder.total)}')],
             )
           ],
         ),

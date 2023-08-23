@@ -9,7 +9,7 @@ class Order {
   DateTime orderTime;
   int orderNumber;
   int orderType;
-  int total;
+  double total;
   String? orderName;
   List<Item> items;
   List<int> itemsQuantity;
@@ -27,7 +27,7 @@ class Order {
     DateTime? orderTime,
     int? orderNumber,
     int? orderType,
-    int? total,
+    double? total,
     String? orderName,
     List<Item>? items,
     List<int>? itemsQuantity,
@@ -57,19 +57,14 @@ class Order {
 
   factory Order.fromMap(Map<String, dynamic> map) {
     return Order(
-        orderTime: DateTime.fromMillisecondsSinceEpoch(map['orderTime'] as int),
-        orderNumber: map['orderNumber'] as int,
-        orderType: map['orderType'] as int,
-        total: map['total'] as int,
-        orderName: map['orderName'] != null ? map['orderName'] as String : null,
-        items: List<Item>.from(
-          (map['items'] as List<int>).map<Item>(
-            (x) => Item.fromMap(x as Map<String, dynamic>),
-          ),
-        ),
-        itemsQuantity: List<int>.from(
-          (map['itemsQuantity'] as List<int>),
-        ));
+      orderTime: DateTime.fromMillisecondsSinceEpoch(map['orderTime'] as int),
+      orderNumber: map['orderNumber'] as int,
+      orderType: map['orderType'] as int,
+      total: map['total'] as double,
+      orderName: map['orderName'] != null ? map['orderName'] as String : null,
+      items: List<Item>.from((map['items'] as List<int>).map<Item>((x) => Item.fromMap(x as Map<String,dynamic>),),),
+      itemsQuantity: List<int>.from((map['itemsQuantity'] as List<int>),
+    ));
   }
 
   String toJson() => json.encode(toMap());
