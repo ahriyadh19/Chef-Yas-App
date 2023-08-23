@@ -4,25 +4,28 @@ import 'dart:convert';
 class Item {
   int itemID;
   String itemName;
+  String itemNameDisplay;
   String? itemNote;
   int itemPrice;
   Item({
     required this.itemID,
     required this.itemName,
+    required this.itemNameDisplay,
     this.itemNote,
     required this.itemPrice,
   });
-  
 
   Item copyWith({
     int? itemID,
     String? itemName,
+    String? itemNameDisplay,
     String? itemNote,
     int? itemPrice,
   }) {
     return Item(
       itemID: itemID ?? this.itemID,
       itemName: itemName ?? this.itemName,
+      itemNameDisplay: itemNameDisplay ?? this.itemNameDisplay,
       itemNote: itemNote ?? this.itemNote,
       itemPrice: itemPrice ?? this.itemPrice,
     );
@@ -32,6 +35,7 @@ class Item {
     return <String, dynamic>{
       'itemID': itemID,
       'itemName': itemName,
+      'itemNameDisplay': itemNameDisplay,
       'itemNote': itemNote,
       'itemPrice': itemPrice,
     };
@@ -41,6 +45,7 @@ class Item {
     return Item(
       itemID: map['itemID'] as int,
       itemName: map['itemName'] as String,
+      itemNameDisplay: map['itemNameDisplay'] as String,
       itemNote: map['itemNote'] != null ? map['itemNote'] as String : null,
       itemPrice: map['itemPrice'] as int,
     );
@@ -52,7 +57,7 @@ class Item {
 
   @override
   String toString() {
-    return 'Item(itemID: $itemID, itemName: $itemName, itemNote: $itemNote, itemPrice: $itemPrice)';
+    return 'Item(itemID: $itemID, itemName: $itemName, itemNameDisplay: $itemNameDisplay, itemNote: $itemNote, itemPrice: $itemPrice)';
   }
 
   @override
@@ -62,6 +67,7 @@ class Item {
     return 
       other.itemID == itemID &&
       other.itemName == itemName &&
+      other.itemNameDisplay == itemNameDisplay &&
       other.itemNote == itemNote &&
       other.itemPrice == itemPrice;
   }
@@ -70,6 +76,7 @@ class Item {
   int get hashCode {
     return itemID.hashCode ^
       itemName.hashCode ^
+      itemNameDisplay.hashCode ^
       itemNote.hashCode ^
       itemPrice.hashCode;
   }

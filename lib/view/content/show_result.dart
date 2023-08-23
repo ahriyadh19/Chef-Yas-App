@@ -27,9 +27,9 @@ class ShowResult extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Column(
+                const Column(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text('Number'),
                     Text('Type'),
                     Text('Date & Time'),
@@ -46,10 +46,10 @@ class ShowResult extends StatelessWidget {
               ],
             ),
             Divider(endIndent: w / 6, indent: w / 6, thickness: 2),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
-                SizedBox(width: 45, child: Text('Unit')),
+              children: [
+                SizedBox(width: 45, child: Text('Qty')),
                 SizedBox(width: 150, child: Text('Name')),
                 SizedBox(width: 45, child: Text('Price')),
                 SizedBox(width: 45, child: Text('Total'))

@@ -211,9 +211,9 @@ class _PrinterServiceState extends State<PrinterService> {
                 });
               }
             },
-      child: Row(
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           Icon(Icons.bluetooth_connected_rounded),
           SizedBox(width: 8),
           Text('Connect'),
@@ -233,9 +233,9 @@ class _PrinterServiceState extends State<PrinterService> {
               await bluetoothPrint.disconnect();
             }
           : null,
-      child: Row(
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           Icon(Icons.bluetooth_disabled_rounded),
           SizedBox(width: 8),
           Text('Disconnect'),
@@ -256,7 +256,7 @@ class _PrinterServiceState extends State<PrinterService> {
 
   SizedBox printBtnRes({required Function set}) {
     return SizedBox(
-      width: 200,
+      width: 150,
       child: ElevatedButton(
         style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
         onPressed: _isResPrinted
@@ -278,9 +278,9 @@ class _PrinterServiceState extends State<PrinterService> {
                 });
                 dialog();
               },
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Icon(Icons.restaurant_menu_rounded),
             SizedBox(width: 8),
             Text('Restaurant Copy'),
@@ -292,7 +292,7 @@ class _PrinterServiceState extends State<PrinterService> {
 
   SizedBox printBtnCus({required Function set}) {
     return SizedBox(
-      width: 200,
+      width: 150,
       child: ElevatedButton(
         style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(180, 170, 101, 0))),
         onPressed: _isCusPrinted
@@ -313,9 +313,9 @@ class _PrinterServiceState extends State<PrinterService> {
                 });
                 dialog();
               },
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Icon(Icons.person),
             SizedBox(width: 8),
             Text('Customer Copy'),
@@ -334,11 +334,11 @@ class _PrinterServiceState extends State<PrinterService> {
           return ElevatedButton(
             style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.redAccent)),
             onPressed: () => bluetoothPrint.stopScan(),
-            child: SizedBox(
+            child: const SizedBox(
               width: 150,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text('Stop'),
                   SizedBox(width: 8),
                   Icon(Icons.stop),
@@ -349,11 +349,11 @@ class _PrinterServiceState extends State<PrinterService> {
         } else {
           return ElevatedButton(
               style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.greenAccent)),
-              child: SizedBox(
+              child: const SizedBox(
                 width: 150,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Text('Search'),
                     SizedBox(width: 8),
                     Icon(Icons.bluetooth_searching_rounded),
@@ -376,8 +376,8 @@ class _PrinterServiceState extends State<PrinterService> {
             Navigator.pop(context);
           });
         },
-        child: Row(
-            mainAxisAlignment: MainAxisAlignment.center, children: const [Icon(Icons.arrow_back_ios_new_rounded), SizedBox(width: 15), Text('Back')]),
+        child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.arrow_back_ios_new_rounded), SizedBox(width: 15), Text('Back')]),
       ),
     );
   }
@@ -399,9 +399,7 @@ class _PrinterServiceState extends State<PrinterService> {
                         titles(),
                         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                           printBtnRes(set: mySetState),
-                          const SizedBox(
-                            width: 15,
-                          ),
+                          const SizedBox(width: 20),  
                           printBtnCus(set: mySetState)
                         ]),
                         if (_isCusPrinted && _isResPrinted) backBtn()

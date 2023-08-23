@@ -24,17 +24,20 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   bool activeSubmit = false;
   List<Item> myItems = [
-    Item(itemID: 0, itemName: 'C Small', itemPrice: 6),
-    Item(itemID: 1, itemName: 'C Small & Cheese', itemPrice: 8),
-    Item(itemID: 2, itemName: 'C Large', itemPrice: 10),
-    Item(itemID: 3, itemName: 'C Large & Cheese', itemPrice: 12),
-    Item(itemID: 4, itemName: 'C Plate', itemPrice: 10),
-    Item(itemID: 5, itemName: 'B Small', itemPrice: 9),
-    Item(itemID: 6, itemName: 'B Small & Cheese', itemPrice: 11),
-    Item(itemID: 7, itemName: 'B Large', itemPrice: 14),
-    Item(itemID: 8, itemName: 'B Large & Cheese', itemPrice: 16),
-    Item(itemID: 9, itemName: 'B Plate', itemPrice: 14),
-    Item(itemID: 10, itemName: 'Kunafa', itemPrice: 10)
+    Item(itemID: 0, itemName: 'C Small', itemPrice: 6, itemNameDisplay: 'Small'),
+    Item(itemID: 1, itemName: 'C Small & Cheese', itemPrice: 8, itemNameDisplay: 'Small & Cheese'),
+    Item(itemID: 2, itemName: 'C Large', itemPrice: 10, itemNameDisplay: 'Large'),
+    Item(itemID: 3, itemName: 'C Large & Cheese', itemPrice: 12, itemNameDisplay: 'Large & Cheese'),
+    Item(itemID: 4, itemName: 'C Plate', itemPrice: 10, itemNameDisplay: 'Plate'),
+    Item(itemID: 5, itemName: 'B Small', itemPrice: 9, itemNameDisplay: 'Small'),
+    Item(itemID: 6, itemName: 'B Small & Cheese', itemPrice: 11, itemNameDisplay: 'Small & Cheese'),
+    Item(itemID: 7, itemName: 'B Large', itemPrice: 14, itemNameDisplay: 'Large'),
+    Item(itemID: 8, itemName: 'B Large & Cheese', itemPrice: 16, itemNameDisplay: 'Large & Cheese'),
+    Item(itemID: 9, itemName: 'B Plate', itemPrice: 14, itemNameDisplay: 'Plate'),
+    Item(itemID: 10, itemName: 'Kunafa', itemPrice: 10, itemNameDisplay: 'Kunafa'),
+    Item(itemID: 11, itemName: '7up', itemPrice: 3, itemNameDisplay: '7up'),
+    Item(itemID: 12, itemName: 'Pepsi', itemPrice: 3, itemNameDisplay: 'Pepsi'),
+    Item(itemID: 13, itemName: 'Water', itemPrice: 2, itemNameDisplay: 'Water'),
   ];
 
   int itemN = 5;
@@ -42,7 +45,7 @@ class _MainPageState extends State<MainPage> {
   int orderType = 0;
   int savedDate = 0;
   int totalRes = 0;
-  static const int menuItemsNumber = 11;
+  static const int menuItemsNumber = 14;
   List<bool> activeNote = List.generate(menuItemsNumber, ((index) => false));
   List<TextEditingController> noteInput = List.generate(menuItemsNumber, ((index) => TextEditingController()));
   List<double> orderQuantity = List.generate(menuItemsNumber, (index) => 0);
@@ -88,7 +91,7 @@ class _MainPageState extends State<MainPage> {
   List<Widget> buildChicken() {
     List<Widget> ch = [];
 
-    for (int i = 0; i < itemN; i++) {
+    for (int i = 0; i < 5; i++) {
       ch.add(menu(index: i, i: myItems[i]));
     }
     return ch;
@@ -97,14 +100,29 @@ class _MainPageState extends State<MainPage> {
   List<Widget> buildBeef() {
     List<Widget> beef = [];
 
-    for (int i = itemN; i < myItems.length - 1; i++) {
+    for (int i = 5; i < 10; i++) {
       beef.add(menu(index: i, i: myItems[i]));
     }
-
     return beef;
   }
 
-  Padding welcoming() {
+  List<Widget> buildSweet() {
+    List<Widget> sweet = [];
+    sweet.add(menu(index: 10, i: myItems.last));
+    return sweet;
+  }
+
+  List<Widget> buildDrinks() {
+    List<Widget> drinks = [];
+
+    for (int i = 11; i < myItems.length; i++) {
+      drinks.add(menu(index: i, i: myItems[i]));
+    }
+
+    return drinks;
+  }
+
+  Padding orderCounter() {
     return Padding(
         padding: const EdgeInsets.only(bottom: 15),
         child: Text(
@@ -148,14 +166,14 @@ class _MainPageState extends State<MainPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             SizedBox(
-              width: 150,
+              width: 140,
               child: Text(
-                i.itemName,
+                i.itemNameDisplay,
                 textAlign: TextAlign.left,
               ),
             ),
             SizedBox(
-              width: 55,
+              width: 50,
               child: Text(
                 'RM${i.itemPrice}',
                 textAlign: TextAlign.left,
@@ -245,14 +263,6 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  List<Widget> sweet() {
-    List<Widget> sweet = [];
-
-    sweet.add(menu(index: 10, i: myItems.last));
-
-    return sweet;
-  }
-
   Container section({required int op}) {
     return Container(
       decoration: BoxDecoration(
@@ -268,7 +278,9 @@ class _MainPageState extends State<MainPage> {
               ? buildChicken()
               : op == 1
                   ? buildBeef()
-                  : sweet(),
+                  : op == 2
+                      ? buildDrinks()
+                      : buildSweet(),
         ),
       ),
     );
@@ -350,7 +362,7 @@ class _MainPageState extends State<MainPage> {
               padding: const EdgeInsets.all(12),
               child: Center(child: Text('Chicken Shawarma'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
         ),
-        ToggleListItem(
+        /* ToggleListItem(
           content: section(op: 1),
           title: Container(
               height: 60,
@@ -361,7 +373,7 @@ class _MainPageState extends State<MainPage> {
               margin: const EdgeInsets.all(12),
               padding: const EdgeInsets.all(12),
               child: Center(child: Text('Beef Shawarma'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
-        ),
+        ),*/
         ToggleListItem(
           content: section(op: 2),
           title: Container(
@@ -372,8 +384,20 @@ class _MainPageState extends State<MainPage> {
               ),
               margin: const EdgeInsets.all(12),
               padding: const EdgeInsets.all(12),
+              child: Center(child: Text('Drinks'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
+        ), /*
+        ToggleListItem(
+          content: section(op: 3),
+          title: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                color: Colors.black.withOpacity(0.2),
+              ),
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               child: Center(child: Text('Dessert'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
-        ),
+        ),*/
       ],
     );
   }
@@ -383,7 +407,7 @@ class _MainPageState extends State<MainPage> {
         controller: ScrollController(),
         child: Column(children: [
           const MyIcon(),
-          welcoming(),
+          orderCounter(),
           option(),
           trigger(),
           if (activeSubmit)
