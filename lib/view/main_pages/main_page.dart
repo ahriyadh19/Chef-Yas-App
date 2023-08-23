@@ -45,6 +45,7 @@ class _MainPageState extends State<MainPage> {
   int orderType = 0;
   int savedDate = 0;
   int totalRes = 0;
+  TextEditingController orderName = TextEditingController();
   static const int menuItemsNumber = 14;
   List<bool> activeNote = List.generate(menuItemsNumber, ((index) => false));
   List<TextEditingController> noteInput = List.generate(menuItemsNumber, ((index) => TextEditingController()));
@@ -85,6 +86,7 @@ class _MainPageState extends State<MainPage> {
       finalOrder = null;
       activeSubmit = false;
       orderType = 0;
+      orderName.clear();
     });
   }
 
@@ -131,7 +133,7 @@ class _MainPageState extends State<MainPage> {
         ));
   }
 
-  Center option() {
+  Center optionOfOrder() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -289,6 +291,7 @@ class _MainPageState extends State<MainPage> {
   Order makeOrder() {
     Order processOrder;
     int t = 0;
+
     processOrder = Order(orderNumber: lastOrder + 1, orderTime: DateTime.now(), orderType: orderType, items: [], total: t, itemsQuantity: []);
     for (var i = 0; i < orderQuantity.length; i++) {
       if (orderQuantity[i] != 0) {
@@ -299,6 +302,7 @@ class _MainPageState extends State<MainPage> {
     }
     processOrder.total = t;
     totalRes = t;
+    processOrder.orderName = orderName.text;
     return processOrder;
   }
 
@@ -344,7 +348,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  ToggleList trigger() {
+  ToggleList triggerListOfFood() {
     return ToggleList(
       scrollPhysics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -404,22 +408,44 @@ class _MainPageState extends State<MainPage> {
 
   SingleChildScrollView myBody() {
     return SingleChildScrollView(
-        controller: ScrollController(),
-        child: Column(children: [
-          const MyIcon(),
-          orderCounter(),
-          option(),
-          trigger(),
-          if (activeSubmit)
-            Column(
-              children: [
-                ShowResult(o: makeOrder()),
-                const SizedBox(
-                  height: 60,
-                ),
-              ],
-            )
-        ]));
+      controller: ScrollController(),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
+        const MyIcon(),
+        orderCounter(),
+        optionOfOrder(),
+        triggerListOfFood(),
+        customerName(),
+        if (activeSubmit)
+          Column(
+            children: [
+              ShowResult(o: makeOrder()),
+              const SizedBox(
+                height: 60,
+              ),
+            ],
+          ),
+      ]),
+    );
+  }
+
+  Padding customerName() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 80),
+      child: TextField(
+        decoration: const InputDecoration(
+          hintText: 'Customer Name',
+          border: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+        ),
+        controller: orderName,
+        onChanged: (value) {
+          setState(() {});
+        },
+      ),
+    );
   }
 
   Future showMyBottomSheet() async {

@@ -111,12 +111,13 @@ class _PrinterServiceState extends State<PrinterService> {
   }
 
   String printTitle({required Order order}) {
-    String out = "Restaurant Copy\n\n";
-    out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
-    out += "${"Order Type".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
-    out += "${"Date & time".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
-    out += "--------------------------------\n";
-    return out;
+    String outTitle = "Restaurant Copy\n\n";
+    outTitle += "${"Order Number: ".padRight(13)}${order.orderNumber}\n";
+    outTitle += "${"Customer Name: ".padRight(13)}${order.orderName != null && order.orderName != '' ? order.orderName : ' -'}\n";
+    outTitle += "${"Order Type: ".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
+    outTitle += "${"Date & time: ".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
+    outTitle += "--------------------------------\n";
+    return outTitle;
   }
 
   String printInfo({required Order order}) {
@@ -136,15 +137,16 @@ class _PrinterServiceState extends State<PrinterService> {
   }
 
   String printForCustomer({required Order order}) {
-    String out = 'Chef Yas\n\n';
-    out += 'Customer Copy\n';
-    out += "${"Order Number".padRight(13)}${order.orderNumber}\n";
-    out += "${"Order Type".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
-    out += "${"Date & time".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
-    out += "${"Total".padRight(13)}RM${order.total}\n";
-    out += "    (^^) HAVE A GOOD DAY (^^)   \n";
-    out += "--------------------------------\n\n";
-    return out;
+    String outCustomer = 'Chef Yas\n\n';
+    outCustomer += 'Customer Copy\n';
+    outCustomer += "${"Order Number: ".padRight(13)}${order.orderNumber}\n";
+    outCustomer += "${"Customer Name: ".padRight(13)}${order.orderName != null && order.orderName != '' ? order.orderName : '-'}\n";
+    outCustomer += "${"Order Type: ".padRight(13)}${order.orderType == 0 ? 'Dine-in' : 'Takeaway'}\n";
+    outCustomer += "${"Date & time: ".padRight(13)}${DateFormat.MMMEd().add_jm().format(order.orderTime).split(',').join()}\n";
+    outCustomer += "${"Total: ".padRight(13)}RM${order.total}\n";
+    outCustomer += "    (^^) HAVE A GOOD DAY (^^)   \n";
+    outCustomer += "--------------------------------\n\n";
+    return outCustomer;
   }
 
   Row status() {
@@ -397,11 +399,9 @@ class _PrinterServiceState extends State<PrinterService> {
                         result,
                         div(),
                         titles(),
-                        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          printBtnRes(set: mySetState),
-                          const SizedBox(width: 20),  
-                          printBtnCus(set: mySetState)
-                        ]),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [printBtnRes(set: mySetState), const SizedBox(width: 20), printBtnCus(set: mySetState)]),
                         if (_isCusPrinted && _isResPrinted) backBtn()
                       ]
                     : [status(), div(), printerFound(set: mySetState), div(), optionBtn(set: mySetState), searchBtn()],

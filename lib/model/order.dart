@@ -1,6 +1,8 @@
-
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+
 import 'package:chef_yas/model/item.dart';
 
 class Order {
@@ -8,6 +10,7 @@ class Order {
   int orderNumber;
   int orderType;
   int total;
+  String? orderName;
   List<Item> items;
   List<int> itemsQuantity;
   Order({
@@ -15,6 +18,7 @@ class Order {
     required this.orderNumber,
     required this.orderType,
     required this.total,
+    this.orderName,
     required this.items,
     required this.itemsQuantity,
   });
@@ -24,6 +28,7 @@ class Order {
     int? orderNumber,
     int? orderType,
     int? total,
+    String? orderName,
     List<Item>? items,
     List<int>? itemsQuantity,
   }) {
@@ -32,6 +37,7 @@ class Order {
       orderNumber: orderNumber ?? this.orderNumber,
       orderType: orderType ?? this.orderType,
       total: total ?? this.total,
+      orderName: orderName ?? this.orderName,
       items: items ?? this.items,
       itemsQuantity: itemsQuantity ?? this.itemsQuantity,
     );
@@ -43,6 +49,7 @@ class Order {
       'orderNumber': orderNumber,
       'orderType': orderType,
       'total': total,
+      'orderName': orderName,
       'items': items.map((x) => x.toMap()).toList(),
       'itemsQuantity': itemsQuantity,
     };
@@ -54,6 +61,7 @@ class Order {
       orderNumber: map['orderNumber'] as int,
       orderType: map['orderType'] as int,
       total: map['total'] as int,
+      orderName: map['orderName'] != null ? map['orderName'] as String : null,
       items: List<Item>.from((map['items'] as List<int>).map<Item>((x) => Item.fromMap(x as Map<String,dynamic>),),),
       itemsQuantity: List<int>.from((map['itemsQuantity'] as List<int>),
     ));
@@ -65,7 +73,7 @@ class Order {
 
   @override
   String toString() {
-    return 'Order(orderTime: $orderTime, orderNumber: $orderNumber, orderType: $orderType, total: $total, items: $items, itemsQuantity: $itemsQuantity)';
+    return 'Order(orderTime: $orderTime, orderNumber: $orderNumber, orderType: $orderType, total: $total, orderName: $orderName, items: $items, itemsQuantity: $itemsQuantity)';
   }
 
   @override
@@ -77,6 +85,7 @@ class Order {
       other.orderNumber == orderNumber &&
       other.orderType == orderType &&
       other.total == total &&
+      other.orderName == orderName &&
       listEquals(other.items, items) &&
       listEquals(other.itemsQuantity, itemsQuantity);
   }
@@ -87,6 +96,7 @@ class Order {
       orderNumber.hashCode ^
       orderType.hashCode ^
       total.hashCode ^
+      orderName.hashCode ^
       items.hashCode ^
       itemsQuantity.hashCode;
   }

@@ -30,6 +30,7 @@ class ShowResult extends StatelessWidget {
                 const Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    Text('Customer Name'),
                     Text('Number'),
                     Text('Type'),
                     Text('Date & Time'),
@@ -38,6 +39,7 @@ class ShowResult extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    Text(o.orderName != null && o.orderName != '' ? o.orderName! : '-'),
                     Text('${o.orderNumber}'),
                     Text(o.orderType == 0 ? 'Dine-in' : 'Takeaway'),
                     Text(DateFormat.MMMEd().add_jm().format(o.orderTime).split(',').join()),
