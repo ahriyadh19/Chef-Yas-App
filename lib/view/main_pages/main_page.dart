@@ -368,7 +368,7 @@ class _MainPageState extends State<MainPage> {
               padding: const EdgeInsets.all(12),
               child: Center(child: Text('Chicken Shawarma'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
         ),
-        /* ToggleListItem(
+        ToggleListItem(
           content: section(op: 1),
           title: Container(
               height: 60,
@@ -379,7 +379,7 @@ class _MainPageState extends State<MainPage> {
               margin: const EdgeInsets.all(12),
               padding: const EdgeInsets.all(12),
               child: Center(child: Text('Beef Shawarma'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
-        ),*/
+        ),
         ToggleListItem(
           content: section(op: 2),
           title: Container(
@@ -391,7 +391,7 @@ class _MainPageState extends State<MainPage> {
               margin: const EdgeInsets.all(12),
               padding: const EdgeInsets.all(12),
               child: Center(child: Text('Drinks'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
-        ), /*
+        ),
         ToggleListItem(
           content: section(op: 3),
           title: Container(
@@ -403,7 +403,7 @@ class _MainPageState extends State<MainPage> {
               margin: const EdgeInsets.all(12),
               padding: const EdgeInsets.all(12),
               child: Center(child: Text('Dessert'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold)))),
-        ),*/
+        ),
       ],
     );
   }
