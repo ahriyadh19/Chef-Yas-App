@@ -57,14 +57,19 @@ class Order {
 
   factory Order.fromMap(Map<String, dynamic> map) {
     return Order(
-      orderTime: DateTime.fromMillisecondsSinceEpoch(map['orderTime'] as int),
-      orderNumber: map['orderNumber'] as int,
-      orderType: map['orderType'] as int,
-      total: map['total'] as int,
-      orderName: map['orderName'] != null ? map['orderName'] as String : null,
-      items: List<Item>.from((map['items'] as List<int>).map<Item>((x) => Item.fromMap(x as Map<String,dynamic>),),),
-      itemsQuantity: List<int>.from((map['itemsQuantity'] as List<int>),
-    ));
+        orderTime: DateTime.fromMillisecondsSinceEpoch(map['orderTime'] as int),
+        orderNumber: map['orderNumber'] as int,
+        orderType: map['orderType'] as int,
+        total: map['total'] as int,
+        orderName: map['orderName'] != null ? map['orderName'] as String : null,
+        items: List<Item>.from(
+          (map['items'] as List<int>).map<Item>(
+            (x) => Item.fromMap(x as Map<String, dynamic>),
+          ),
+        ),
+        itemsQuantity: List<int>.from(
+          (map['itemsQuantity'] as List<int>),
+        ));
   }
 
   String toJson() => json.encode(toMap());
@@ -79,25 +84,24 @@ class Order {
   @override
   bool operator ==(covariant Order other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.orderTime == orderTime &&
-      other.orderNumber == orderNumber &&
-      other.orderType == orderType &&
-      other.total == total &&
-      other.orderName == orderName &&
-      listEquals(other.items, items) &&
-      listEquals(other.itemsQuantity, itemsQuantity);
+
+    return other.orderTime == orderTime &&
+        other.orderNumber == orderNumber &&
+        other.orderType == orderType &&
+        other.total == total &&
+        other.orderName == orderName &&
+        listEquals(other.items, items) &&
+        listEquals(other.itemsQuantity, itemsQuantity);
   }
 
   @override
   int get hashCode {
     return orderTime.hashCode ^
-      orderNumber.hashCode ^
-      orderType.hashCode ^
-      total.hashCode ^
-      orderName.hashCode ^
-      items.hashCode ^
-      itemsQuantity.hashCode;
+        orderNumber.hashCode ^
+        orderType.hashCode ^
+        total.hashCode ^
+        orderName.hashCode ^
+        items.hashCode ^
+        itemsQuantity.hashCode;
   }
 }
