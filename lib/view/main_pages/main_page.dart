@@ -110,7 +110,7 @@ class _MainPageState extends State<MainPage> {
 
   List<Widget> buildSweet() {
     List<Widget> sweet = [];
-    sweet.add(menu(index: 10, i: myItems.last));
+    sweet.add(menu(index: 10, i: myItems[10]));
     return sweet;
   }
 
@@ -421,7 +421,8 @@ class _MainPageState extends State<MainPage> {
           Column(
             children: [
               ShowResult(currentOrder: makeOrder()),
-              orderBtn(),
+              //orderBtn(),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.12),
             ],
           ),
       ]),
@@ -430,20 +431,27 @@ class _MainPageState extends State<MainPage> {
 
   Padding customerName() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 80),
-      child: TextField(
-        decoration: const InputDecoration(
-          hintText: 'Customer Name',
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
+      padding: const EdgeInsets.all(25),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          color: Colors.black.withOpacity(0.2),
         ),
-        controller: orderName,
-        onChanged: (value) {
-          setState(() {});
-        },
+        padding: const EdgeInsets.all(10),
+        child: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Customer Name',
+            border: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+          ),
+          controller: orderName,
+          onChanged: (value) {
+            setState(() {});
+          },
+        ),
       ),
     );
   }
@@ -468,10 +476,10 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async => false,
-        child: Scaffold(
+      onWillPop: () async => false,
+      child: Scaffold(
           body: BackGround(myBody: myBody(), isSub: false),
-          // floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: orderBtn()) : null),
-        ));
+          floatingActionButton: activeSubmit ? Align(alignment: Alignment.bottomCenter, child: orderBtn()) : null),
+    );
   }
 }
